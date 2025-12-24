@@ -1,1 +1,6 @@
-<Solution />
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/lib/">
+    <Project Path="src/lib/BinkyLabs.OpenApi.Arazzo.csproj" />
+  </Folder>
+</Solution>
