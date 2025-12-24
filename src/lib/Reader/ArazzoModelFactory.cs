@@ -3,13 +3,10 @@
 using System.Security;
 using System.Text;
 
-using BinkyLabs.OpenApi.Arazzo;
-using BinkyLabs.OpenApi.Arazzo.Reader;
-
 using Microsoft.OpenApi;
 
 
-namespace BinkyLabs.Arazzo.Arazzo;
+namespace BinkyLabs.OpenApi.Arazzo;
 
 /// <summary>
 /// A factory class for loading Arazzo models from various sources.

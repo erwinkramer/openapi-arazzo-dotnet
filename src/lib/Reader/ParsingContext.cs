@@ -250,8 +250,6 @@ public class ParsingContext
     {
         if (ArazzoV1Version.Equals(version, StringComparison.OrdinalIgnoreCase) && RootNode is not null)
         {
-            if (doc.Actions == null)
-                RootNode.Context.Diagnostic.Errors.Add(new OpenApiError("", $"Actions is a REQUIRED field at {RootNode.Context.GetLocation()}"));
             if (doc.Info == null)
                 RootNode.Context.Diagnostic.Errors.Add(new OpenApiError("", $"Info is a REQUIRED field at {RootNode.Context.GetLocation()}"));
         }
