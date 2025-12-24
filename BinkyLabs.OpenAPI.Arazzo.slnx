@@ -3,4 +3,8 @@
   <Folder Name="/src/lib/">
     <Project Path="src/lib/BinkyLabs.OpenApi.Arazzo.csproj" />
   </Folder>
+  <Folder Name="/tests/" />
+  <Folder Name="/tests/lib/">
+    <Project Path="tests/lib/BinkyLabs.OpenApi.Arazzo.Tests.csproj" />
+  </Folder>
 </Solution>
