@@ -65,4 +65,18 @@ public static class ArazzoConstants
     /// The "value" field name in the Arazzo Payload Replacement object.
     /// </summary>
     public const string ArazzoPayloadReplacementValue = "value";
+
+    // ArazzoRequestBody
+    /// <summary>
+    /// The "contentType" field name in the Arazzo Request Body object.
+    /// </summary>
+    public const string ArazzoRequestBodyContentType = "contentType";
+    /// <summary>
+    /// The "payload" field name in the Arazzo Request Body object.
+    /// </summary>
+    public const string ArazzoRequestBodyPayload = "payload";
+    /// <summary>
+    /// The "replacements" field name in the Arazzo Request Body object.
+    /// </summary>
+    public const string ArazzoRequestBodyReplacements = "replacements";
 }
