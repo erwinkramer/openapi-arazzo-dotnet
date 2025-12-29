@@ -5,11 +5,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 using BinkyLabs.OpenApi.Arazzo.Reader;
+
+using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo
 {

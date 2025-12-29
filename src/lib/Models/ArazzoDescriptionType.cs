@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo;
 
@@ -10,12 +10,12 @@ public enum ArazzoDescriptionType
     /// <summary>
     /// OpenAPI specification type.
     /// </summary>
-    [Display(Name = "openapi")]
+    [Display("openapi")]
     OpenAPI,
 
     /// <summary>
     /// Arazzo specification type.
     /// </summary>
-    [Display(Name = "arazzo")]
+    [Display("arazzo")]
     Arazzo
 }
