@@ -4,6 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../keyfile.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
