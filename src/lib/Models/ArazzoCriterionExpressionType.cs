@@ -40,6 +40,12 @@ public class ArazzoCriterionExpressionType : IArazzoSerializable, IArazzoExtensi
             throw new ArgumentNullException(nameof(Version));
         }
 
+        // Validate that Simple and Regex types are not serialized as they are not supported by the specification
+        if (Type.Value == ArazzoCriterionExpressionTypeType.Simple || Type.Value == ArazzoCriterionExpressionTypeType.Regex)
+        {
+            throw new ArazzoException($"Serializing criterion expression type '{Type.Value.GetDisplayName()}' as an object is NOT supported by the specification.");
+        }
+
         writer.WriteStartObject();
         writer.WriteRequiredProperty(ArazzoConstants.ArazzoCriterionExpressionTypeType, Type.Value.GetDisplayName());
         writer.WriteRequiredProperty(ArazzoConstants.ArazzoCriterionExpressionTypeVersion, Version.Value.GetDisplayName());

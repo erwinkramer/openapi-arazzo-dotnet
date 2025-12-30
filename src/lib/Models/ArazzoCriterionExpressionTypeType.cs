@@ -8,6 +8,16 @@ namespace BinkyLabs.OpenApi.Arazzo;
 public enum ArazzoCriterionExpressionTypeType
 {
     /// <summary>
+    /// Simple criterion expression type.
+    /// </summary>
+    [Display("simple")]
+    Simple,
+    /// <summary>
+    /// Regular expression criterion expression type.
+    /// </summary>
+    [Display("regex")]
+    Regex,
+    /// <summary>
     /// JSONPath criterion expression type.
     /// </summary>
     [Display("jsonpath")]
@@ -17,5 +27,5 @@ public enum ArazzoCriterionExpressionTypeType
     /// XPath criterion expression type.
     /// </summary>
     [Display("xpath")]
-    XPath
+    XPath,
 }

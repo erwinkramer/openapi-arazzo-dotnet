@@ -154,4 +154,84 @@ public class ArazzoCriterionExpressionTypeTests
 
         Assert.Throws<ArgumentNullException>(() => expressionType.SerializeAsV1(writer));
     }
+
+    [Fact]
+    public void SerializeAsV1_WithSimpleType_ThrowsArazzoException()
+    {
+        var expressionType = new ArazzoCriterionExpressionType
+        {
+            Type = ArazzoCriterionExpressionTypeType.Simple,
+            Version = ArazzoCriterionExpressionVersion.XPath30
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoException>(() => expressionType.SerializeAsV1(writer));
+        Assert.Contains("Serializing criterion expression type 'simple' as an object is NOT supported by the specification", exception.Message);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithRegexType_ThrowsArazzoException()
+    {
+        var expressionType = new ArazzoCriterionExpressionType
+        {
+            Type = ArazzoCriterionExpressionTypeType.Regex,
+            Version = ArazzoCriterionExpressionVersion.XPath20
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoException>(() => expressionType.SerializeAsV1(writer));
+        Assert.Contains("Serializing criterion expression type 'regex' as an object is NOT supported by the specification", exception.Message);
+    }
+
+    [Fact]
+    public void Deserialize_WithSimpleType_ShouldLogError()
+    {
+        var json = """
+        {
+            "type": "simple",
+            "version": "xpath-10"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var diagnostic = new ArazzoDiagnostic();
+        var parsingContext = new ParsingContext(diagnostic);
+        var parseNode = new MapNode(parsingContext, jsonNode);
+
+        var expressionType = ArazzoV1Deserializer.LoadCriterionExpressionType(parseNode);
+
+        // Verify that the object was deserialized
+        Assert.Equal(ArazzoCriterionExpressionTypeType.Simple, expressionType.Type);
+        Assert.Equal(ArazzoCriterionExpressionVersion.XPath10, expressionType.Version);
+
+        // Verify that an error was logged to diagnostics
+        Assert.Single(diagnostic.Errors);
+        Assert.Contains("Deserializing criterion expression type 'simple' as an object is NOT supported by the specification", diagnostic.Errors[0].Message);
+    }
+
+    [Fact]
+    public void Deserialize_WithRegexType_ShouldLogError()
+    {
+        var json = """
+        {
+            "type": "regex",
+            "version": "xpath-30"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var diagnostic = new ArazzoDiagnostic();
+        var parsingContext = new ParsingContext(diagnostic);
+        var parseNode = new MapNode(parsingContext, jsonNode);
+
+        var expressionType = ArazzoV1Deserializer.LoadCriterionExpressionType(parseNode);
+
+        // Verify that the object was deserialized
+        Assert.Equal(ArazzoCriterionExpressionTypeType.Regex, expressionType.Type);
+        Assert.Equal(ArazzoCriterionExpressionVersion.XPath30, expressionType.Version);
+
+        // Verify that an error was logged to diagnostics
+        Assert.Single(diagnostic.Errors);
+        Assert.Contains("Deserializing criterion expression type 'regex' as an object is NOT supported by the specification", diagnostic.Errors[0].Message);
+    }
 }
