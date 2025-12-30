@@ -11,18 +11,14 @@ internal static partial class ArazzoV1Deserializer
         { ArazzoConstants.ArazzoCriterionContext, (o, v) => o.Context = v.GetScalarValue() },
         { ArazzoConstants.ArazzoCriterionCondition, (o, v) => o.Condition = v.GetScalarValue() },
         { ArazzoConstants.ArazzoCriterionType, (o, v) => {
-            if (v is ValueNode valueNode)
+            if (v is ValueNode valueNode && v.GetScalarValue().TryGetEnumFromDisplayName<ArazzoCriterionExpressionTypeType>(v.Context, out var typeValue))
             {
                 // Type is a string (Simple or Regex)
-                var typeString = valueNode.GetScalarValue();
-                if (typeString != null && Enum.TryParse<ArazzoCriterionExpressionTypeType>(typeString, true, out var typeValue))
+                o.Type = new ArazzoCriterionExpressionType
                 {
-                    o.Type = new ArazzoCriterionExpressionType
-                    {
-                        Type = typeValue,
-                        Version = null
-                    };
-                }
+                    Type = typeValue,
+                    Version = null
+                };
             }
             else if (v is MapNode)
             {
