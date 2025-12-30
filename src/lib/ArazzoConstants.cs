@@ -79,4 +79,14 @@ public static class ArazzoConstants
     /// The "replacements" field name in the Arazzo Request Body object.
     /// </summary>
     public const string ArazzoRequestBodyReplacements = "replacements";
+
+    // ArazzoCriterionExpressionType
+    /// <summary>
+    /// The "type" field name in the Arazzo Criterion Expression Type object.
+    /// </summary>
+    public const string ArazzoCriterionExpressionTypeType = "type";
+    /// <summary>
+    /// The "version" field name in the Arazzo Criterion Expression Type object.
+    /// </summary>
+    public const string ArazzoCriterionExpressionTypeVersion = "version";
 }
