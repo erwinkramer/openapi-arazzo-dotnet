@@ -1,0 +1,22 @@
+# Models to implement
+
+- [x] document
+- [ ] components-object
+- [x] criterion-expression-type-object
+- [x] criterion-object
+- [ ] failure-action-object
+- [x] info
+- [x] parameter-object
+- [x] payload-replacement-object
+- [x] request-body-object
+- [ ] reusable-object
+- [ ] schema
+- [x] source-description-object
+- [ ] specification-extensions
+- [ ] step-object
+- [ ] success-action-object
+- [ ] workflow-object
+
+# features to implement
+
+- [ ] references resolution
