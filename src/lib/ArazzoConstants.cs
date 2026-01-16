@@ -125,4 +125,34 @@ public static class ArazzoConstants
     /// The "criteria" field name in the Arazzo Success Action object.
     /// </summary>
     public const string ArazzoSuccessActionCriteria = "criteria";
+
+    // ArazzoFailureAction
+    /// <summary>
+    /// The "name" field name in the Arazzo Failure Action object.
+    /// </summary>
+    public const string ArazzoFailureActionName = "name";
+    /// <summary>
+    /// The "type" field name in the Arazzo Failure Action object.
+    /// </summary>
+    public const string ArazzoFailureActionType = "type";
+    /// <summary>
+    /// The "workflowId" field name in the Arazzo Failure Action object.
+    /// </summary>
+    public const string ArazzoFailureActionWorkflowId = "workflowId";
+    /// <summary>
+    /// The "stepId" field name in the Arazzo Failure Action object.
+    /// </summary>
+    public const string ArazzoFailureActionStepId = "stepId";
+    /// <summary>
+    /// The "retryAfter" field name in the Arazzo Failure Action object.
+    /// </summary>
+    public const string ArazzoFailureActionRetryAfter = "retryAfter";
+    /// <summary>
+    /// The "retryLimit" field name in the Arazzo Failure Action object.
+    /// </summary>
+    public const string ArazzoFailureActionRetryLimit = "retryLimit";
+    /// <summary>
+    /// The "criteria" field name in the Arazzo Failure Action object.
+    /// </summary>
+    public const string ArazzoFailureActionCriteria = "criteria";
 }

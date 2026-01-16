@@ -4,7 +4,7 @@
 - [ ] components-object
 - [x] criterion-expression-type-object
 - [x] criterion-object
-- [ ] failure-action-object
+- [x] failure-action-object
 - [x] info
 - [x] parameter-object
 - [x] payload-replacement-object
