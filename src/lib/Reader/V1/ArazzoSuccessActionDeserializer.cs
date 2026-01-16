@@ -8,8 +8,8 @@ internal static partial class ArazzoV1Deserializer
 {
     public static readonly FixedFieldMap<ArazzoSuccessAction> SuccessActionFixedFields = new()
     {
-        { ArazzoConstants.ArazzoSuccessActionName, (o, v) => o.Name = v.GetScalarValue() },
-        { ArazzoConstants.ArazzoSuccessActionType, (o, v) =>
+        { ArazzoConstants.ArazzoResultActionName, (o, v) => o.Name = v.GetScalarValue() },
+        { ArazzoConstants.ArazzoResultActionType, (o, v) =>
         {
             if (!v.GetScalarValue().TryGetEnumFromDisplayName<ArazzoSuccessType>(v.Context, out var type))
             {
@@ -17,9 +17,9 @@ internal static partial class ArazzoV1Deserializer
             }
             o.Type = type;
         } },
-        { ArazzoConstants.ArazzoSuccessActionWorkflowId, (o, v) => o.WorkflowId = v.GetScalarValue() },
-        { ArazzoConstants.ArazzoSuccessActionStepId, (o, v) => o.StepId = v.GetScalarValue() },
-        { ArazzoConstants.ArazzoSuccessActionCriteria, (o, v) => o.Criteria = v.CreateList(LoadCriterion) }
+        { ArazzoConstants.ArazzoResultActionWorkflowId, (o, v) => o.WorkflowId = v.GetScalarValue() },
+        { ArazzoConstants.ArazzoResultActionStepId, (o, v) => o.StepId = v.GetScalarValue() },
+        { ArazzoConstants.ArazzoResultActionCriteria, (o, v) => o.Criteria = v.CreateList(LoadCriterion) }
     };
 
     public static readonly PatternFieldMap<ArazzoSuccessAction> SuccessActionPatternFields = new()

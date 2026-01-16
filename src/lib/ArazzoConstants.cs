@@ -104,45 +104,29 @@ public static class ArazzoConstants
     /// </summary>
     public const string ArazzoCriterionExpressionTypeVersion = "version";
 
-    // ArazzoSuccessAction
+    // ArazzoResultAction (common fields for success and failure actions)
     /// <summary>
-    /// The "name" field name in the Arazzo Success Action object.
+    /// The "name" field name in the Arazzo Result Action object.
     /// </summary>
-    public const string ArazzoSuccessActionName = "name";
+    public const string ArazzoResultActionName = "name";
     /// <summary>
-    /// The "type" field name in the Arazzo Success Action object.
+    /// The "type" field name in the Arazzo Result Action object.
     /// </summary>
-    public const string ArazzoSuccessActionType = "type";
+    public const string ArazzoResultActionType = "type";
     /// <summary>
-    /// The "workflowId" field name in the Arazzo Success Action object.
+    /// The "workflowId" field name in the Arazzo Result Action object.
     /// </summary>
-    public const string ArazzoSuccessActionWorkflowId = "workflowId";
+    public const string ArazzoResultActionWorkflowId = "workflowId";
     /// <summary>
-    /// The "stepId" field name in the Arazzo Success Action object.
+    /// The "stepId" field name in the Arazzo Result Action object.
     /// </summary>
-    public const string ArazzoSuccessActionStepId = "stepId";
+    public const string ArazzoResultActionStepId = "stepId";
     /// <summary>
-    /// The "criteria" field name in the Arazzo Success Action object.
+    /// The "criteria" field name in the Arazzo Result Action object.
     /// </summary>
-    public const string ArazzoSuccessActionCriteria = "criteria";
+    public const string ArazzoResultActionCriteria = "criteria";
 
-    // ArazzoFailureAction
-    /// <summary>
-    /// The "name" field name in the Arazzo Failure Action object.
-    /// </summary>
-    public const string ArazzoFailureActionName = "name";
-    /// <summary>
-    /// The "type" field name in the Arazzo Failure Action object.
-    /// </summary>
-    public const string ArazzoFailureActionType = "type";
-    /// <summary>
-    /// The "workflowId" field name in the Arazzo Failure Action object.
-    /// </summary>
-    public const string ArazzoFailureActionWorkflowId = "workflowId";
-    /// <summary>
-    /// The "stepId" field name in the Arazzo Failure Action object.
-    /// </summary>
-    public const string ArazzoFailureActionStepId = "stepId";
+    // ArazzoFailureAction (specific fields only)
     /// <summary>
     /// The "retryAfter" field name in the Arazzo Failure Action object.
     /// </summary>
@@ -151,8 +135,4 @@ public static class ArazzoConstants
     /// The "retryLimit" field name in the Arazzo Failure Action object.
     /// </summary>
     public const string ArazzoFailureActionRetryLimit = "retryLimit";
-    /// <summary>
-    /// The "criteria" field name in the Arazzo Failure Action object.
-    /// </summary>
-    public const string ArazzoFailureActionCriteria = "criteria";
 }

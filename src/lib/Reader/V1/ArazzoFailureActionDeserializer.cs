@@ -8,8 +8,8 @@ internal static partial class ArazzoV1Deserializer
 {
     public static readonly FixedFieldMap<ArazzoFailureAction> FailureActionFixedFields = new()
     {
-        { ArazzoConstants.ArazzoFailureActionName, (o, v) => o.Name = v.GetScalarValue() },
-        { ArazzoConstants.ArazzoFailureActionType, (o, v) =>
+        { ArazzoConstants.ArazzoResultActionName, (o, v) => o.Name = v.GetScalarValue() },
+        { ArazzoConstants.ArazzoResultActionType, (o, v) =>
         {
             if (!v.GetScalarValue().TryGetEnumFromDisplayName<ArazzoFailureType>(v.Context, out var type))
             {
@@ -17,8 +17,8 @@ internal static partial class ArazzoV1Deserializer
             }
             o.Type = type;
         } },
-        { ArazzoConstants.ArazzoFailureActionWorkflowId, (o, v) => o.WorkflowId = v.GetScalarValue() },
-        { ArazzoConstants.ArazzoFailureActionStepId, (o, v) => o.StepId = v.GetScalarValue() },
+        { ArazzoConstants.ArazzoResultActionWorkflowId, (o, v) => o.WorkflowId = v.GetScalarValue() },
+        { ArazzoConstants.ArazzoResultActionStepId, (o, v) => o.StepId = v.GetScalarValue() },
         { ArazzoConstants.ArazzoFailureActionRetryAfter, (o, v) => 
         {
             if (decimal.TryParse(v.GetScalarValue(), out var retryAfter))
@@ -33,7 +33,7 @@ internal static partial class ArazzoV1Deserializer
                 o.RetryLimit = retryLimit;
             }
         } },
-        { ArazzoConstants.ArazzoFailureActionCriteria, (o, v) => o.Criteria = v.CreateList(LoadCriterion) }
+        { ArazzoConstants.ArazzoResultActionCriteria, (o, v) => o.Criteria = v.CreateList(LoadCriterion) }
     };
 
     public static readonly PatternFieldMap<ArazzoFailureAction> FailureActionPatternFields = new()
