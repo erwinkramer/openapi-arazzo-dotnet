@@ -1,5 +1,3 @@
-using BinkyLabs.OpenApi.Arazzo.Writers;
-
 using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo;

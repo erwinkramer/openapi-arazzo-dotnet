@@ -3,7 +3,6 @@ using System.Text.Json.Nodes;
 
 using BinkyLabs.OpenApi.Arazzo.Reader;
 
-using Microsoft.OpenApi;
 using Microsoft.OpenApi.YamlReader;
 
 using SharpYaml.Serialization;

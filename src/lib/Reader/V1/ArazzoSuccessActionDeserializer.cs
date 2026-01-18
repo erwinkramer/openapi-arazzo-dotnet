@@ -1,7 +1,3 @@
-using System;
-
-using Microsoft.OpenApi;
-
 namespace BinkyLabs.OpenApi.Arazzo.Reader.V1;
 
 internal static partial class ArazzoV1Deserializer

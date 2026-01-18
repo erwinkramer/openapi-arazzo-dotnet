@@ -1,8 +1,6 @@
 ﻿
 // Licensed under the MIT license.
 
-using System;
-
 using BinkyLabs.OpenApi.Arazzo.Reader;
 
 namespace BinkyLabs.OpenApi.Arazzo;

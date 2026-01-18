@@ -1,5 +1,3 @@
-using System;
-
 using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo.Reader.V1;

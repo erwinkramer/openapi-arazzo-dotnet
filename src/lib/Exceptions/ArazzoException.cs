@@ -1,7 +1,4 @@
-﻿
-// Licensed under the MIT license.
-
-using System;
+﻿// Licensed under the MIT license.
 
 namespace BinkyLabs.OpenApi.Arazzo;
 

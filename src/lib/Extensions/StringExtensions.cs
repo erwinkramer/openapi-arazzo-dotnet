@@ -1,9 +1,7 @@
 // Copied from https://github.com/microsoft/OpenAPI.NET/blob/43c75a90746344fcc975611100e995fe4045edf0/src/Microsoft.OpenApi/Extensions/StringExtensions.cs#L3
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;

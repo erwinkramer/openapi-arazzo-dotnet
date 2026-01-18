@@ -1,7 +1,6 @@
 ﻿
 // Licensed under the MIT license.
 
-using System;
 using System.Globalization;
 using System.Text.Json.Nodes;
 

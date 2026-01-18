@@ -1,5 +1,3 @@
-using System.Text.Json.Nodes;
-
 using BinkyLabs.OpenApi.Arazzo.Writers;
 
 using Microsoft.OpenApi;

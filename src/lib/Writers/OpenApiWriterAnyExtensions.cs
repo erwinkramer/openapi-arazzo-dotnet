@@ -1,12 +1,6 @@
 ﻿
 // Licensed under the MIT license.
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-
 using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo.Writers;
