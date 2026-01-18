@@ -153,4 +153,50 @@ public static class ArazzoConstants
     /// The "retryLimit" field name in the Arazzo Failure Action object.
     /// </summary>
     public const string ArazzoFailureActionRetryLimit = "retryLimit";
+
+    // ArazzoStep
+    /// <summary>
+    /// The "description" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepDescription = "description";
+    /// <summary>
+    /// The "stepId" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepStepId = "stepId";
+    /// <summary>
+    /// The "operationId" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepOperationId = "operationId";
+    /// <summary>
+    /// The "operationPath" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepOperationPath = "operationPath";
+    /// <summary>
+    /// The "workflowId" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepWorkflowId = "workflowId";
+    /// <summary>
+    /// The "parameters" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepParameters = "parameters";
+    /// <summary>
+    /// The "requestBody" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepRequestBody = "requestBody";
+    /// <summary>
+    /// The "successCriteria" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepSuccessCriteria = "successCriteria";
+    /// <summary>
+    /// The "onSuccess" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepOnSuccess = "onSuccess";
+    /// <summary>
+    /// The "onFailure" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepOnFailure = "onFailure";
+    /// <summary>
+    /// The "outputs" field name in the Arazzo Step object.
+    /// </summary>
+    public const string ArazzoStepOutputs = "outputs";
 }

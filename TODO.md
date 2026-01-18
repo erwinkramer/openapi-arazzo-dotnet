@@ -13,7 +13,7 @@
 - [ ] schema
 - [x] source-description-object
 - [ ] specification-extensions
-- [ ] step-object
+- [x] step-object
 - [x] success-action-object
 - [ ] workflow-object
 
