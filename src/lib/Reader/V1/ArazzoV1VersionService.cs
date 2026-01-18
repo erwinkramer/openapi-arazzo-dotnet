@@ -33,6 +33,7 @@ internal class ArazzoV1VersionService : IArazzoVersionService
         [typeof(ArazzoSourceDescription)] = ArazzoV1Deserializer.LoadSourceDescription,
         [typeof(ArazzoSuccessAction)] = ArazzoV1Deserializer.LoadSuccessAction,
         [typeof(ArazzoFailureAction)] = ArazzoV1Deserializer.LoadFailureAction,
+        [typeof(ArazzoWorkflow)] = ArazzoV1Deserializer.LoadWorkflow,
     };
 
     public ArazzoDocument LoadDocument(RootNode rootNode, Uri location)

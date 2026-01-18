@@ -199,4 +199,42 @@ public static class ArazzoConstants
     /// The "outputs" field name in the Arazzo Step object.
     /// </summary>
     public const string ArazzoStepOutputs = "outputs";
+
+    // ArazzoWorkflow
+    /// <summary>
+    /// The "workflowId" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowWorkflowId = "workflowId";
+    /// <summary>
+    /// The "summary" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowSummary = "summary";
+    /// <summary>
+    /// The "inputs" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowInputs = "inputs";
+    /// <summary>
+    /// The "dependsOn" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowDependsOn = "dependsOn";
+    /// <summary>
+    /// The "steps" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowSteps = "steps";
+    /// <summary>
+    /// The "successActions" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowSuccessActions = "successActions";
+    /// <summary>
+    /// The "failureActions" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowFailureActions = "failureActions";
+    /// <summary>
+    /// The "outputs" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowOutputs = "outputs";
+    /// <summary>
+    /// The "parameters" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowParameters = "parameters";
 }

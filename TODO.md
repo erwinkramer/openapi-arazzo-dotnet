@@ -15,7 +15,7 @@
 - [ ] specification-extensions
 - [x] step-object
 - [x] success-action-object
-- [ ] workflow-object
+- [x] workflow-object
 
 # features to implement
 
