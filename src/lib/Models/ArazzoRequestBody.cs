@@ -43,16 +43,7 @@ public class ArazzoRequestBody : IArazzoSerializable, IArazzoExtensible
         writer.WriteProperty(ArazzoConstants.ArazzoRequestBodyContentType, ContentType);
         writer.WriteOptionalObject(ArazzoConstants.ArazzoRequestBodyPayload, Payload, static (w, v) => w.WriteAny(v));
 
-        if (Replacements is not null)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoRequestBodyReplacements);
-            writer.WriteStartArray();
-            foreach (var replacement in Replacements)
-            {
-                replacement?.SerializeAsV1(writer);
-            }
-            writer.WriteEndArray();
-        }
+        writer.WriteOptionalCollection(ArazzoConstants.ArazzoRequestBodyReplacements, Replacements, static (w, r) => r?.SerializeAsV1(w));
 
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();

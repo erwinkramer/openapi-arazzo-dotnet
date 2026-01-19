@@ -76,11 +76,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
         writer.WriteProperty(ArazzoConstants.ArazzoWorkflowSummary, Summary);
 
         // Write inputs
-        if (Inputs != null)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoWorkflowInputs);
-            Inputs.SerializeAsV32(writer);
-        }
+        writer.WriteOptionalObject(ArazzoConstants.ArazzoWorkflowInputs, Inputs, static (w, i) => i.SerializeAsV32(w));
 
         // Write dependsOn
         writer.WriteOptionalCollection(ArazzoConstants.ArazzoWorkflowDependsOn, DependsOn, static (w, d) => w.WriteValue(d!));
@@ -95,17 +91,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
         writer.WriteOptionalCollection(ArazzoConstants.ArazzoWorkflowFailureActions, FailureActions, static (w, a) => a.SerializeAsV1(w));
 
         // Write outputs
-        if (Outputs != null && Outputs.Count > 0)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoWorkflowOutputs);
-            writer.WriteStartObject();
-            foreach (var output in Outputs)
-            {
-                writer.WritePropertyName(output.Key);
-                writer.WriteValue(output.Value);
-            }
-            writer.WriteEndObject();
-        }
+        writer.WriteOptionalMap(ArazzoConstants.ArazzoWorkflowOutputs, Outputs, static (w, s) => w.WriteValue(s));
 
         // Write parameters
         writer.WriteOptionalMap(ArazzoConstants.ArazzoWorkflowParameters, Parameters, static (w, p) => p.SerializeAsV1(w));

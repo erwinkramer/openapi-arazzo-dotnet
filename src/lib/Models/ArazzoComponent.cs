@@ -58,10 +58,7 @@ public class ArazzoComponent : IArazzoSerializable, IArazzoExtensible
         writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentFailureActions, FailureActions, static (w, a) => a.SerializeAsV1(w));
 
         // Write inputs
-        if (Inputs != null && Inputs.Count > 0)
-        {
-            writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentInputs, Inputs, (w, s) => s.SerializeAsV32(w));
-        }
+        writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentInputs, Inputs, (w, s) => s.SerializeAsV32(w));
 
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();

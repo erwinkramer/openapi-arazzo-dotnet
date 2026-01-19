@@ -68,11 +68,8 @@ public class ArazzoDocument : IArazzoSerializable, IArazzoExtensible
 
         writer.WriteRequiredCollection(ArazzoConstants.ArazzoDocumentWorkflows, Workflows, static (w, wf) => wf.SerializeAsV1(w));
 
-        if (Components != null)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoDocumentComponents);
-            Components.SerializeAsV1(writer);
-        }
+        writer.WriteOptionalObject(ArazzoConstants.ArazzoDocumentComponents, Components, static (w, c) => c.SerializeAsV1(w));
+
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();
     }
