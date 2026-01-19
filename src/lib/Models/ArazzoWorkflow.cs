@@ -144,17 +144,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
         }
 
         // Write parameters
-        if (Parameters != null && Parameters.Count > 0)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoWorkflowParameters);
-            writer.WriteStartObject();
-            foreach (var parameter in Parameters)
-            {
-                writer.WritePropertyName(parameter.Key);
-                parameter.Value.SerializeAsV1(writer);
-            }
-            writer.WriteEndObject();
-        }
+        writer.WriteOptionalMap(ArazzoConstants.ArazzoWorkflowParameters, Parameters, static (w, p) => p.SerializeAsV1(w));
 
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();

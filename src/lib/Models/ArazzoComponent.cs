@@ -49,43 +49,13 @@ public class ArazzoComponent : IArazzoSerializable, IArazzoExtensible
         writer.WriteStartObject();
 
         // Write parameters
-        if (Parameters != null && Parameters.Count > 0)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoComponentParameters);
-            writer.WriteStartObject();
-            foreach (var parameter in Parameters)
-            {
-                writer.WritePropertyName(parameter.Key);
-                parameter.Value.SerializeAsV1(writer);
-            }
-            writer.WriteEndObject();
-        }
+        writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentParameters, Parameters, static (w, p) => p.SerializeAsV1(w));
 
         // Write success actions
-        if (SuccessActions != null && SuccessActions.Count > 0)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoComponentSuccessActions);
-            writer.WriteStartObject();
-            foreach (var action in SuccessActions)
-            {
-                writer.WritePropertyName(action.Key);
-                action.Value.SerializeAsV1(writer);
-            }
-            writer.WriteEndObject();
-        }
+        writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentSuccessActions, SuccessActions, static (w, a) => a.SerializeAsV1(w));
 
         // Write failure actions
-        if (FailureActions != null && FailureActions.Count > 0)
-        {
-            writer.WritePropertyName(ArazzoConstants.ArazzoComponentFailureActions);
-            writer.WriteStartObject();
-            foreach (var action in FailureActions)
-            {
-                writer.WritePropertyName(action.Key);
-                action.Value.SerializeAsV1(writer);
-            }
-            writer.WriteEndObject();
-        }
+        writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentFailureActions, FailureActions, static (w, a) => a.SerializeAsV1(w));
 
         // Write inputs
         if (Inputs != null && Inputs.Count > 0)
