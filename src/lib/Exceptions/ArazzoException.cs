@@ -11,7 +11,7 @@ public class ArazzoException : Exception
     /// Creates a new instance of the <see cref="ArazzoException"/> class with default values.
     /// </summary>
     public ArazzoException()
-        : this("Error parsing the overlay document.")
+        : this("Error parsing the Arazzo document.")
     {
     }
 
