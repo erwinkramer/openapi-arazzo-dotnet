@@ -72,7 +72,7 @@ public class ArazzoModelFactoryAdditionalTests
     public async Task ParseAsync_EmptyInput_Throws()
     {
         var ct = TestContext.Current.CancellationToken;
-        await Assert.ThrowsAsync<ArgumentException>(() => ArazzoModelFactory.ParseAsync(""));
+        await Assert.ThrowsAsync<ArgumentException>(() => ArazzoModelFactory.ParseAsync("", cancellationToken: ct));
     }
 
     [Fact]
@@ -86,7 +86,7 @@ public class ArazzoModelFactoryAdditionalTests
               version: '1'
             sourceDescriptions: []
             """;
-        var result = await ArazzoModelFactory.ParseAsync(yaml);
+        var result = await ArazzoModelFactory.ParseAsync(yaml, cancellationToken: ct);
         Assert.NotNull(result.Document);
     }
 
