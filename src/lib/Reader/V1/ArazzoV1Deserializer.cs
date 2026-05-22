@@ -5,16 +5,11 @@ namespace BinkyLabs.OpenApi.Arazzo.Reader.V1;
 internal static partial class ArazzoV1Deserializer
 {
     private static void ParseMap<T>(
-        MapNode? mapNode,
+        MapNode mapNode,
         T domainObject,
         FixedFieldMap<T> fixedFieldMap,
         PatternFieldMap<T> patternFieldMap)
     {
-        if (mapNode == null)
-        {
-            return;
-        }
-
         foreach (var propertyNode in mapNode)
         {
             propertyNode.ParseField(domainObject, fixedFieldMap, patternFieldMap);

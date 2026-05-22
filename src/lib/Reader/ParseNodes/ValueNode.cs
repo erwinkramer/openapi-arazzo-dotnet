@@ -23,8 +23,7 @@ namespace BinkyLabs.OpenApi.Arazzo.Reader
         public override string GetScalarValue()
         {
             var scalarValue = _node.GetValue<object>();
-            return Convert.ToString(scalarValue, CultureInfo.InvariantCulture)
-                ?? throw new ArazzoReaderException($"Expected a value at {Context.GetLocation()}.");
+            return Convert.ToString(scalarValue, CultureInfo.InvariantCulture)!;
         }
 
         /// <summary>

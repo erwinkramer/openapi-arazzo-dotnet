@@ -15,7 +15,7 @@ namespace BinkyLabs.OpenApi.Arazzo.Reader
 
             var scalarNode = node is JsonValue value ? value : throw new OpenApiException($"Expected scalar value.");
 
-            return Convert.ToString(scalarNode?.GetValue<object>(), CultureInfo.InvariantCulture);
+            return Convert.ToString(scalarNode.GetValue<object>(), CultureInfo.InvariantCulture);
         }
     }
 }

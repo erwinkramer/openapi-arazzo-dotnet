@@ -244,10 +244,14 @@ public class ParsingContext
 
     private void ValidateRequiredFields(ArazzoDocument doc, string version)
     {
-        if (ArazzoV1Version.Equals(version, StringComparison.OrdinalIgnoreCase) && RootNode is not null)
+        if (!ArazzoV1Version.Equals(version, StringComparison.OrdinalIgnoreCase))
         {
-            if (doc.Info == null)
-                RootNode.Context.Diagnostic.Errors.Add(new OpenApiError("", $"Info is a REQUIRED field at {RootNode.Context.GetLocation()}"));
+            return;
+        }
+
+        if (doc.Info == null && RootNode is not null)
+        {
+            RootNode.Context.Diagnostic.Errors.Add(new OpenApiError("", $"Info is a REQUIRED field at {RootNode.Context.GetLocation()}"));
         }
     }
 }
