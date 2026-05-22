@@ -17,9 +17,10 @@ public class ArazzoYamlReaderTests
     [Fact]
     public async Task ReadAsync_MemoryStream_ParsesYaml()
     {
+        var ct = TestContext.Current.CancellationToken;
         var reader = new ArazzoYamlReader();
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(ValidYaml));
-        var result = await reader.ReadAsync(stream, new Uri("https://example.com/"), new ArazzoReaderSettings());
+        var result = await reader.ReadAsync(stream, new Uri("https://example.com/"), new ArazzoReaderSettings(), ct);
 
         Assert.NotNull(result.Document);
         Assert.Equal("T", result.Document!.Info!.Title);
@@ -28,10 +29,11 @@ public class ArazzoYamlReaderTests
     [Fact]
     public async Task ReadAsync_NonMemoryStream_BuffersThenParsesYaml()
     {
+        var ct = TestContext.Current.CancellationToken;
         var reader = new ArazzoYamlReader();
         using var inner = new MemoryStream(Encoding.UTF8.GetBytes(ValidYaml));
         using var nonMem = new BufferingPassThroughStream(inner);
-        var result = await reader.ReadAsync(nonMem, new Uri("https://example.com/"), new ArazzoReaderSettings());
+        var result = await reader.ReadAsync(nonMem, new Uri("https://example.com/"), new ArazzoReaderSettings(), ct);
 
         Assert.NotNull(result.Document);
         Assert.Equal("T", result.Document!.Info!.Title);
@@ -40,26 +42,29 @@ public class ArazzoYamlReaderTests
     [Fact]
     public async Task ReadAsync_NullStream_Throws()
     {
+        var ct = TestContext.Current.CancellationToken;
         var reader = new ArazzoYamlReader();
-        await Assert.ThrowsAsync<ArgumentNullException>(() => reader.ReadAsync(null!, new Uri("https://example.com/"), new ArazzoReaderSettings()));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => reader.ReadAsync(null!, new Uri("https://example.com/"), new ArazzoReaderSettings(), ct));
     }
 
     [Fact]
     public async Task GetJsonNodeFromStreamAsync_ReturnsJsonNode()
     {
+        var ct = TestContext.Current.CancellationToken;
         var reader = new ArazzoYamlReader();
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(ValidYaml));
-        var node = await reader.GetJsonNodeFromStreamAsync(stream);
+        var node = await reader.GetJsonNodeFromStreamAsync(stream, ct);
         Assert.NotNull(node);
     }
 
     [Fact]
     public async Task GetJsonNodeFromStreamAsync_InvalidYaml_Throws()
     {
+        var ct = TestContext.Current.CancellationToken;
         var reader = new ArazzoYamlReader();
         // Empty document — no yaml documents found
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(""));
-        await Assert.ThrowsAsync<InvalidOperationException>(() => reader.GetJsonNodeFromStreamAsync(stream));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => reader.GetJsonNodeFromStreamAsync(stream, ct));
     }
 
     /// <summary>Wraps an inner stream and pretends to be a non-MemoryStream so the YAML reader takes the buffer branch.</summary>

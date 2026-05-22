@@ -22,24 +22,27 @@ public class ArazzoModelFactoryAdditionalTests
     [Fact]
     public async Task LoadFormUrlAsync_EmptyUrl_Throws()
     {
-        await Assert.ThrowsAsync<ArgumentException>(() => ArazzoModelFactory.LoadFormUrlAsync(""));
+        var ct = TestContext.Current.CancellationToken;
+        await Assert.ThrowsAsync<ArgumentException>(() => ArazzoModelFactory.LoadFormUrlAsync("", token: ct));
     }
 
     [Fact]
     public async Task LoadFormUrlAsync_NonExistentFile_ThrowsInvalidOperation()
     {
+        var ct = TestContext.Current.CancellationToken;
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => ArazzoModelFactory.LoadFormUrlAsync("nonexistent-file-9f81ab.arazzo.json"));
+            () => ArazzoModelFactory.LoadFormUrlAsync("nonexistent-file-9f81ab.arazzo.json", token: ct));
     }
 
     [Fact]
     public async Task LoadFormUrlAsync_LocalJsonFile_LoadsDocument()
     {
+        var ct = TestContext.Current.CancellationToken;
         var path = Path.Combine(Path.GetTempPath(), $"arazzo-{Guid.NewGuid():N}.json");
-        await File.WriteAllTextAsync(path, DocumentJson);
+        await File.WriteAllTextAsync(path, DocumentJson, ct);
         try
         {
-            var result = await ArazzoModelFactory.LoadFormUrlAsync(path);
+            var result = await ArazzoModelFactory.LoadFormUrlAsync(path, token: ct);
             Assert.NotNull(result.Document);
             Assert.Equal("T", result.Document!.Info!.Title);
         }
@@ -52,13 +55,14 @@ public class ArazzoModelFactoryAdditionalTests
     [Fact]
     public async Task LoadFormUrlAsync_HttpUrl_UsesHttpClient()
     {
+        var ct = TestContext.Current.CancellationToken;
         var handler = new StubHttpHandler(req => new HttpResponseMessage(HttpStatusCode.OK)
         {
             Content = new StringContent(DocumentJson, Encoding.UTF8, "application/json")
         });
         var settings = new ArazzoReaderSettings { HttpClient = new HttpClient(handler) };
 
-        var result = await ArazzoModelFactory.LoadFormUrlAsync("https://example.com/spec.json", settings);
+        var result = await ArazzoModelFactory.LoadFormUrlAsync("https://example.com/spec.json", settings, ct);
 
         Assert.NotNull(result.Document);
         Assert.Equal("T", result.Document!.Info!.Title);
@@ -67,12 +71,14 @@ public class ArazzoModelFactoryAdditionalTests
     [Fact]
     public async Task ParseAsync_EmptyInput_Throws()
     {
+        var ct = TestContext.Current.CancellationToken;
         await Assert.ThrowsAsync<ArgumentException>(() => ArazzoModelFactory.ParseAsync(""));
     }
 
     [Fact]
     public async Task ParseAsync_YamlInput_DetectsYamlFormat()
     {
+        var ct = TestContext.Current.CancellationToken;
         var yaml = """
             Arazzo: 1.0.0
             info:
@@ -87,26 +93,29 @@ public class ArazzoModelFactoryAdditionalTests
     [Fact]
     public async Task LoadFromStreamAsync_NullStream_Throws()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => ArazzoModelFactory.LoadFromStreamAsync(null!));
+        var ct = TestContext.Current.CancellationToken;
+        await Assert.ThrowsAsync<ArgumentNullException>(() => ArazzoModelFactory.LoadFromStreamAsync(null!, cancellationToken: ct));
     }
 
     [Fact]
     public async Task LoadFromStreamAsync_ExplicitFormat_BypassesDetection()
     {
+        var ct = TestContext.Current.CancellationToken;
         using var ms = new MemoryStream(Encoding.UTF8.GetBytes(DocumentJson));
-        var result = await ArazzoModelFactory.LoadFromStreamAsync(ms, format: OpenApiConstants.Json);
+        var result = await ArazzoModelFactory.LoadFromStreamAsync(ms, format: OpenApiConstants.Json, cancellationToken: ct);
         Assert.NotNull(result.Document);
     }
 
     [Fact]
     public async Task LoadFromStreamAsync_FromFileStream_UsesFileUri()
     {
+        var ct = TestContext.Current.CancellationToken;
         var path = Path.Combine(Path.GetTempPath(), $"arazzo-{Guid.NewGuid():N}.json");
-        await File.WriteAllTextAsync(path, DocumentJson);
+        await File.WriteAllTextAsync(path, DocumentJson, ct);
         try
         {
             using var fs = File.OpenRead(path);
-            var result = await ArazzoModelFactory.LoadFromStreamAsync(fs);
+            var result = await ArazzoModelFactory.LoadFromStreamAsync(fs, cancellationToken: ct);
             Assert.NotNull(result.Document);
         }
         finally
