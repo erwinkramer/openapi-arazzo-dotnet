@@ -70,10 +70,12 @@ public static class ArazzoModelFactory
     /// <param name="input">The input string.</param>
     /// <param name="format">The Open API format</param>
     /// <param name="settings">The Arazzo reader settings.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be cancelled.</param>
     /// <returns>An Arazzo document instance.</returns>
     public static async Task<ReadResult> ParseAsync(string input,
                                    string? format = null,
-                                   ArazzoReaderSettings? settings = null)
+                                   ArazzoReaderSettings? settings = null,
+                                   CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrEmpty(input);
 
@@ -83,7 +85,7 @@ public static class ArazzoModelFactory
         // Copy string into MemoryStream
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(input));
 
-        return await InternalLoadAsync(stream, format, settings);
+        return await InternalLoadAsync(stream, format, settings, cancellationToken).ConfigureAwait(false);
     }
 
     private static readonly Lazy<ArazzoReaderSettings> DefaultReaderSettings = new(() => new ArazzoReaderSettings());
