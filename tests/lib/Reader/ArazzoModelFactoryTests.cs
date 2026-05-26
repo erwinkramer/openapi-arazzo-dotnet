@@ -117,7 +117,7 @@ public sealed class ArazzoModelFactoryTests
     public async Task CanLoadAStringJsonAndDetectFormatWhenPrecededBySpaces()
     {
         // When
-        var result = await ArazzoModelFactory.ParseAsync("   " + documentJson);
+        var result = await ArazzoModelFactory.ParseAsync("   " + documentJson, cancellationToken: TestContext.Current.CancellationToken);
 
         // Then
         Assert.NotNull(result);
