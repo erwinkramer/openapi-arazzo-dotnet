@@ -7,7 +7,7 @@ internal static partial class ArazzoV1Deserializer
     public static readonly FixedFieldMap<ArazzoRequestBody> RequestBodyFixedFields = new()
     {
         { ArazzoConstants.ArazzoRequestBodyContentType, static (o, v, c) => o.ContentType = v.GetScalarValue() },
-        { ArazzoConstants.ArazzoRequestBodyPayload, static (o, v, c) => o.Payload = v.CreateAny() },
+        { ArazzoConstants.ArazzoRequestBodyPayload, static (o, v, c) => o.Payload = v },
         { ArazzoConstants.ArazzoRequestBodyReplacements, static (o, v, c) => o.Replacements = v.CreateList(LoadPayloadReplacement, c) }
     };
 
