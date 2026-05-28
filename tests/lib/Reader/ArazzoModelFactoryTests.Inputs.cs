@@ -8,17 +8,8 @@ using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo.Tests.Reader;
 
-public class ArazzoModelFactoryAdditionalTests
+public sealed partial class ArazzoModelFactoryTests
 {
-    private const string DocumentJson =
-        """
-        {
-          "Arazzo": "1.0.0",
-          "info": { "title": "T", "version": "1" },
-          "sourceDescriptions": []
-        }
-        """;
-
     [Fact]
     public async Task LoadFormUrlAsync_EmptyUrl_Throws()
     {
@@ -39,12 +30,12 @@ public class ArazzoModelFactoryAdditionalTests
     {
         var ct = TestContext.Current.CancellationToken;
         var path = Path.Combine(Path.GetTempPath(), $"arazzo-{Guid.NewGuid():N}.json");
-        await File.WriteAllTextAsync(path, DocumentJson, ct);
+        await File.WriteAllTextAsync(path, documentJson, ct);
         try
         {
             var result = await ArazzoModelFactory.LoadFormUrlAsync(path, token: ct);
             Assert.NotNull(result.Document);
-            Assert.Equal("T", result.Document!.Info!.Title);
+            Assert.Equal("Sample Arazzo", result.Document!.Info!.Title);
         }
         finally
         {
@@ -58,14 +49,14 @@ public class ArazzoModelFactoryAdditionalTests
         var ct = TestContext.Current.CancellationToken;
         var handler = new StubHttpHandler(req => new HttpResponseMessage(HttpStatusCode.OK)
         {
-            Content = new StringContent(DocumentJson, Encoding.UTF8, "application/json")
+            Content = new StringContent(documentJson, Encoding.UTF8, "application/json")
         });
         var settings = new ArazzoReaderSettings { HttpClient = new HttpClient(handler) };
 
         var result = await ArazzoModelFactory.LoadFormUrlAsync("https://example.com/spec.json", settings, ct);
 
         Assert.NotNull(result.Document);
-        Assert.Equal("T", result.Document!.Info!.Title);
+        Assert.Equal("Sample Arazzo", result.Document!.Info!.Title);
     }
 
     [Fact]
@@ -101,7 +92,7 @@ public class ArazzoModelFactoryAdditionalTests
     public async Task LoadFromStreamAsync_ExplicitFormat_BypassesDetection()
     {
         var ct = TestContext.Current.CancellationToken;
-        using var ms = new MemoryStream(Encoding.UTF8.GetBytes(DocumentJson));
+        using var ms = new MemoryStream(Encoding.UTF8.GetBytes(documentJson));
         var result = await ArazzoModelFactory.LoadFromStreamAsync(ms, format: OpenApiConstants.Json, cancellationToken: ct);
         Assert.NotNull(result.Document);
     }
@@ -111,7 +102,7 @@ public class ArazzoModelFactoryAdditionalTests
     {
         var ct = TestContext.Current.CancellationToken;
         var path = Path.Combine(Path.GetTempPath(), $"arazzo-{Guid.NewGuid():N}.json");
-        await File.WriteAllTextAsync(path, DocumentJson, ct);
+        await File.WriteAllTextAsync(path, documentJson, ct);
         try
         {
             using var fs = File.OpenRead(path);
