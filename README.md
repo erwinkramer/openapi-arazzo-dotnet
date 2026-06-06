@@ -6,6 +6,8 @@ This project provides a .NET implementation of the [OpenAPI Arazzo Specification
 
 The library enables developers to programmatically apply parse, build, serialize, validate arazzo documents.
 
+This library was funded in part by the Interledger Foundation. See the related announcement: [SDK Grant Funds Security Features, OpenAPI Specification, and Arazzo Workflow Support in Kiota](https://interledger.org/news/sdk-grant-funds-security-features-openapi-specification-and-arazzo-workflow-support-kiota).
+
 ## Library
 
 ### Installing the library
@@ -71,4 +73,3 @@ The OpenAPI Arazzo Libraries releases notes are available from the [CHANGELOG](C
 This project welcomes contributions and suggestions.  Make sure you open an issue before sending any pull request to avoid any misunderstanding.
 
 ## Trademarks
-
