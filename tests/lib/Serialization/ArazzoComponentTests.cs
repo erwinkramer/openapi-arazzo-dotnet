@@ -31,9 +31,9 @@ public class ArazzoComponentTests
             {
                 ["failure1"] = new ArazzoFailureAction { Name = "failure1", Type = ArazzoFailureType.End }
             },
-            Inputs = new Dictionary<string, IOpenApiSchema>
+            Inputs = new Dictionary<string, IArazzoInput>
             {
-                ["input1"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                ["input1"] = new ArazzoInput { Type = JsonSchemaType.String }
             },
             Extensions = new Dictionary<string, IArazzoExtension>
             {
@@ -99,6 +99,11 @@ public class ArazzoComponentTests
                     "type": "end"
                 }
             },
+            "inputs": {
+                "input1": {
+                    "type": "string"
+                }
+            },
             "x-flag": true
         }
         """;
@@ -116,6 +121,9 @@ public class ArazzoComponentTests
         Assert.Contains("success1", component.SuccessActions!.Keys);
         Assert.Equal("success1", component.SuccessActions["success1"].Name);
         Assert.Equal(ArazzoSuccessType.End, component.SuccessActions["success1"].Type);
+
+        Assert.NotNull(component.Inputs);
+        Assert.Equal(JsonSchemaType.String, component.Inputs!["input1"].Type);
 
         Assert.NotNull(component.Extensions);
         var extension = Assert.IsType<JsonNodeExtension>(component.Extensions!["x-flag"]);

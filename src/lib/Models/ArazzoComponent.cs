@@ -27,7 +27,7 @@ public class ArazzoComponent : IArazzoSerializable, IArazzoExtensible
     /// <summary>
     /// Gets or sets the inputs dictionary.
     /// </summary>
-    public IDictionary<string, IOpenApiSchema>? Inputs { get; set; }
+    public IDictionary<string, IArazzoInput>? Inputs { get; set; }
 
     /// <summary>
     /// Gets or sets the extensions dictionary.
@@ -58,7 +58,7 @@ public class ArazzoComponent : IArazzoSerializable, IArazzoExtensible
         writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentFailureActions, FailureActions, static (w, a) => a.SerializeAsV1(w));
 
         // Write inputs
-        writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentInputs, Inputs, (w, s) => s.SerializeAsV32(w));
+        writer.WriteOptionalMap(ArazzoConstants.ArazzoComponentInputs, Inputs, static (w, s) => s.SerializeAsV1(w));
 
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();

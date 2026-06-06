@@ -16,7 +16,7 @@ public class ArazzoWorkflowTests
         {
             WorkflowId = "getUserWorkflow",
             Summary = "Get user by ID",
-            Inputs = new OpenApiSchema { Type = JsonSchemaType.Object },
+            Inputs = new ArazzoInput { Type = JsonSchemaType.Object },
             DependsOn = new HashSet<string> { "authWorkflow", "setupWorkflow" },
             Steps = new List<ArazzoStep>
             {
@@ -145,6 +145,9 @@ public class ArazzoWorkflowTests
         {
             "workflowId": "testWorkflow",
             "summary": "Test workflow",
+            "inputs": {
+                "type": "object"
+            },
             "dependsOn": ["workflow1", "workflow2"]
         }
         """;
@@ -155,6 +158,8 @@ public class ArazzoWorkflowTests
 
         Assert.Equal("testWorkflow", workflow.WorkflowId);
         Assert.Equal("Test workflow", workflow.Summary);
+        Assert.NotNull(workflow.Inputs);
+        Assert.Equal(JsonSchemaType.Object, workflow.Inputs!.Type);
 
         Assert.NotNull(workflow.DependsOn);
         Assert.Contains("workflow1", workflow.DependsOn);

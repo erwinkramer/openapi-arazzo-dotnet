@@ -22,7 +22,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
     /// <summary>
     /// Gets or sets the inputs schema.
     /// </summary>
-    public IOpenApiSchema? Inputs { get; set; }
+    public IArazzoInput? Inputs { get; set; }
 
     /// <summary>
     /// Gets or sets the set of workflow identifiers that this workflow depends on.
@@ -76,7 +76,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
         writer.WriteProperty(ArazzoConstants.ArazzoWorkflowSummary, Summary);
 
         // Write inputs
-        writer.WriteOptionalObject(ArazzoConstants.ArazzoWorkflowInputs, Inputs, static (w, i) => i.SerializeAsV32(w));
+        writer.WriteOptionalObject(ArazzoConstants.ArazzoWorkflowInputs, Inputs, static (w, i) => i.SerializeAsV1(w));
 
         // Write dependsOn
         writer.WriteOptionalCollection(ArazzoConstants.ArazzoWorkflowDependsOn, DependsOn, static (w, d) => w.WriteValue(d!));

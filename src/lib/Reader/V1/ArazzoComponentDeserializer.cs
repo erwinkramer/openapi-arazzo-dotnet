@@ -21,7 +21,7 @@ internal static partial class ArazzoV1Deserializer
         { s => s.StartsWith(ArazzoConstants.ExtensionFieldNamePrefix, StringComparison.OrdinalIgnoreCase), (o, k, n, c) => o.AddExtension(k, LoadExtension(k, n, c)) }
     };
 
-    public static IOpenApiSchema? LoadSchema(JsonNode node, ParsingContext context)
+    public static IArazzoInput? LoadSchema(JsonNode node, ParsingContext context)
     {
         //TODO this leads to double encoding and memory overhead, find a better way by adding an overload that accepts json node
         using var ms = new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString()));
@@ -31,10 +31,11 @@ internal static partial class ArazzoV1Deserializer
             && referenceValue.TryGetValue<string>(out var referenceString)
             && !string.IsNullOrEmpty(referenceString))
         {
-            // TODO the reference might fail to resolve because of the underlying infrastructure. We might need to come up with our own type.
-            return OpenApiModelFactory.Load<OpenApiSchemaReference>(ms, OpenApiSpecVersion.OpenApi3_2, OpenApiConstants.Json, new(), out var varRef);
+            throw new NotSupportedException("Schema references in Arazzo inputs are not yet supported.");
         }
-        return OpenApiModelFactory.Load<OpenApiSchema>(ms, OpenApiSpecVersion.OpenApi3_2, OpenApiConstants.Json, new(), out var _);
+
+        var schema = OpenApiModelFactory.Load<OpenApiSchema>(ms, OpenApiSpecVersion.OpenApi3_2, OpenApiConstants.Json, new(), out var _);
+        return schema is OpenApiSchema openApiSchema ? (ArazzoInput?)openApiSchema : null;
     }
 
     public static ArazzoComponent LoadComponent(JsonNode node, ParsingContext context)
