@@ -41,8 +41,6 @@ internal static partial class ArazzoV1Deserializer
 
     public static IArazzoInput? LoadSchema(JsonNode node, ParsingContext context)
     {
-        //TODO this leads to double encoding and memory overhead, find a better way by adding an overload that accepts json node
-        using var ms = new MemoryStream(Encoding.UTF8.GetBytes(node.ToJsonString()));
         if (node is JsonObject jsonObject &&
             jsonObject.TryGetPropertyValue("$ref", out var reference)
             && reference is JsonValue referenceValue
@@ -57,7 +55,8 @@ internal static partial class ArazzoV1Deserializer
             return inputReference;
         }
 
-        var schema = OpenApiModelFactory.Load<OpenApiSchema>(ms, OpenApiSpecVersion.OpenApi3_2, OpenApiConstants.Json, new(), out var _);
+        var jsonReader = new OpenApiJsonReader();
+        var schema = jsonReader.ReadFragment<OpenApiSchema>(node, OpenApiSpecVersion.OpenApi3_2, new(), out var _);
         var host = context.GetFromTempStorage<ArazzoDocument>("CurrentDocument");
         return schema is OpenApiSchema openApiSchema ? ArazzoInput.ConvertFromOpenApiSchema(openApiSchema, host) : null;
     }
