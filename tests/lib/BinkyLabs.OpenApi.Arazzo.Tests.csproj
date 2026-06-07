@@ -24,4 +24,10 @@
     <ProjectReference Include="..\..\src\lib\BinkyLabs.OpenApi.Arazzo.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Samples\ArazzoSpecification\1.0.0\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
