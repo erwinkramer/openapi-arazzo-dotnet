@@ -144,4 +144,50 @@ public class ArazzoComponentTests
 
         Assert.Equal(expectedJson, result);
     }
+
+    [Fact]
+    public void SerializeAsV1_WithInvalidComponentKey_ThrowsArazzoSerializationException()
+    {
+        var component = new ArazzoComponent
+        {
+            Parameters = new Dictionary<string, ArazzoParameter>
+            {
+                ["invalid key"] = new()
+                {
+                    Name = "id",
+                    In = ParameterLocation.Path,
+                    Value = "123"
+                }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => component.SerializeAsV1(writer));
+
+        Assert.Contains("Invalid key: 'invalid key'", exception.Message);
+    }
+
+    [Fact]
+    public void Deserialize_WithInvalidComponentKey_AddsDiagnosticError()
+    {
+        var json = """
+        {
+            "parameters": {
+                "invalid key": {
+                    "name": "id",
+                    "in": "path",
+                    "value": "456"
+                }
+            }
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        var component = ArazzoV1Deserializer.LoadComponent(jsonNode, parsingContext);
+
+        Assert.NotNull(component.Parameters);
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("Invalid key: 'invalid key'", StringComparison.Ordinal));
+    }
 }

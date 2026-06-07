@@ -1,6 +1,8 @@
 using System.Text;
 using System.Text.Json.Nodes;
 
+using BinkyLabs.OpenApi.Arazzo.Validation;
+
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
 
@@ -27,6 +29,7 @@ internal static partial class ArazzoV1Deserializer
         { ArazzoConstants.ArazzoWorkflowFailureActions, static (o, v, c) => o.FailureActions = v.CreateList<IArazzoFailureAction>(LoadFailureAction, c) },
         { ArazzoConstants.ArazzoWorkflowOutputs, static (o, v, c) =>
         {
+            ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoWorkflow)}.{nameof(ArazzoWorkflow.Outputs)}");
             o.Outputs = v.CreateSimpleMap(static n => n.GetScalarValue(), c)
                 .Where(static x => x.Value is not null)
                 .ToDictionary(static x => x.Key, static x => x.Value!);
@@ -43,9 +46,6 @@ internal static partial class ArazzoV1Deserializer
     {
         var mapNode = node.CheckMapNode("Workflow", context);
         var workflow = new ArazzoWorkflow();
-
-        // TODO: Implement validation during serialization/deserialization that any of the keys 
-        // of Outputs dictionary must match the following regex: ^[a-zA-Z0-9\.\-_]+$
 
         mapNode.ParseMap(workflow, WorkflowFixedFields, WorkflowPatternFields, context);
 

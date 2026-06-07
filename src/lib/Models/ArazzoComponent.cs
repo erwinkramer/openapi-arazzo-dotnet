@@ -1,3 +1,4 @@
+using BinkyLabs.OpenApi.Arazzo.Validation;
 using BinkyLabs.OpenApi.Arazzo.Writers;
 
 using Microsoft.OpenApi;
@@ -42,9 +43,10 @@ public class ArazzoComponent : IArazzoSerializable, IArazzoExtensible
     {
         ArgumentNullException.ThrowIfNull(writer);
 
-        // TODO: Implement validation during serialization/deserialization that any of the keys 
-        // of Parameters, SuccessActions, FailureActions, and Inputs dictionaries must match 
-        // the following regex: ^[a-zA-Z0-9\.\-_]+$
+        ArazzoKeyValidator.ValidateSerializationKeys(Parameters?.Keys, $"{nameof(ArazzoComponent)}.{nameof(Parameters)}");
+        ArazzoKeyValidator.ValidateSerializationKeys(SuccessActions?.Keys, $"{nameof(ArazzoComponent)}.{nameof(SuccessActions)}");
+        ArazzoKeyValidator.ValidateSerializationKeys(FailureActions?.Keys, $"{nameof(ArazzoComponent)}.{nameof(FailureActions)}");
+        ArazzoKeyValidator.ValidateSerializationKeys(Inputs?.Keys, $"{nameof(ArazzoComponent)}.{nameof(Inputs)}");
 
         writer.WriteStartObject();
 

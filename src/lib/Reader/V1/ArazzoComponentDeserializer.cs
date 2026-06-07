@@ -1,6 +1,8 @@
 using System.Text;
 using System.Text.Json.Nodes;
 
+using BinkyLabs.OpenApi.Arazzo.Validation;
+
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
 
@@ -10,10 +12,26 @@ internal static partial class ArazzoV1Deserializer
 {
     public static readonly FixedFieldMap<ArazzoComponent> ComponentFixedFields = new()
     {
-        { ArazzoConstants.ArazzoComponentParameters, static (o, v, c) => o.Parameters = v.CreateMap(LoadParameterObject, c) },
-        { ArazzoConstants.ArazzoComponentSuccessActions, static (o, v, c) => o.SuccessActions = v.CreateMap(LoadSuccessActionObject, c) },
-        { ArazzoConstants.ArazzoComponentFailureActions, static (o, v, c) => o.FailureActions = v.CreateMap(LoadFailureActionObject, c) },
-        { ArazzoConstants.ArazzoComponentInputs, static (o, v, c) => o.Inputs = v.CreateMap(LoadSchema, c).Where(static x => x.Value != null).ToDictionary(static x => x.Key, static x => x.Value!) },
+        { ArazzoConstants.ArazzoComponentParameters, static (o, v, c) =>
+        {
+            ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoComponent)}.{nameof(ArazzoComponent.Parameters)}");
+            o.Parameters = v.CreateMap(LoadParameterObject, c);
+        } },
+        { ArazzoConstants.ArazzoComponentSuccessActions, static (o, v, c) =>
+        {
+            ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoComponent)}.{nameof(ArazzoComponent.SuccessActions)}");
+            o.SuccessActions = v.CreateMap(LoadSuccessActionObject, c);
+        } },
+        { ArazzoConstants.ArazzoComponentFailureActions, static (o, v, c) =>
+        {
+            ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoComponent)}.{nameof(ArazzoComponent.FailureActions)}");
+            o.FailureActions = v.CreateMap(LoadFailureActionObject, c);
+        } },
+        { ArazzoConstants.ArazzoComponentInputs, static (o, v, c) =>
+        {
+            ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoComponent)}.{nameof(ArazzoComponent.Inputs)}");
+            o.Inputs = v.CreateMap(LoadSchema, c).Where(static x => x.Value != null).ToDictionary(static x => x.Key, static x => x.Value!);
+        } },
     };
 
     public static readonly PatternFieldMap<ArazzoComponent> ComponentPatternFields = new()
@@ -118,10 +136,6 @@ internal static partial class ArazzoV1Deserializer
     {
         var mapNode = node.CheckMapNode("Component", context);
         var component = new ArazzoComponent();
-
-        // TODO: Implement validation during serialization/deserialization that any of the keys 
-        // of Parameters, SuccessActions, FailureActions, and Inputs dictionaries must match 
-        // the following regex: ^[a-zA-Z0-9\.\-_]+$
 
         mapNode.ParseMap(component, ComponentFixedFields, ComponentPatternFields, context);
 

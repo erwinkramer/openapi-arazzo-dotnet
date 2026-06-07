@@ -1,3 +1,4 @@
+using BinkyLabs.OpenApi.Arazzo.Validation;
 using BinkyLabs.OpenApi.Arazzo.Writers;
 
 using Microsoft.OpenApi;
@@ -52,8 +53,6 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
     /// <summary>
     /// Gets or sets the outputs dictionary.
     /// </summary>
-    // TODO: Implement validation during serialization/deserialization that any of the keys 
-    // of the Outputs dictionary must match the following regex: ^[a-zA-Z0-9\.\-_]+$
     public IDictionary<string, string>? Outputs { get; set; }
 
     /// <summary>
@@ -95,6 +94,8 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
 
         // Write failure actions
         writer.WriteOptionalCollection(ArazzoConstants.ArazzoWorkflowFailureActions, FailureActions, static (w, a) => a.SerializeAsV1(w));
+
+        ArazzoKeyValidator.ValidateSerializationKeys(Outputs?.Keys, $"{nameof(ArazzoWorkflow)}.{nameof(Outputs)}");
 
         // Write outputs
         writer.WriteOptionalMap(ArazzoConstants.ArazzoWorkflowOutputs, Outputs, static (w, s) => w.WriteValue(s));
