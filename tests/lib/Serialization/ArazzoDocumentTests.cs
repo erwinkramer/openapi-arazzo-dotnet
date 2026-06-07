@@ -435,7 +435,7 @@ public class ArazzoDocumentTests
             }
             """;
 
-        var filePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
+        var filePath = Path.Join(Path.GetTempPath(), $"{Guid.NewGuid():N}.json");
         await File.WriteAllTextAsync(filePath, json, TestContext.Current.CancellationToken);
 
         try
