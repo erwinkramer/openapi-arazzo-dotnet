@@ -16,6 +16,7 @@ public class ArazzoWorkflowTests
         {
             WorkflowId = "getUserWorkflow",
             Summary = "Get user by ID",
+            Description = "Retrieve a user by ID through the workflow.",
             Inputs = new ArazzoInput { Type = JsonSchemaType.Object },
             DependsOn = new HashSet<string> { "authWorkflow", "setupWorkflow" },
             Steps = new List<ArazzoStep>
@@ -68,6 +69,7 @@ public class ArazzoWorkflowTests
         {
             "workflowId": "getUserWorkflow",
             "summary": "Get user by ID",
+            "description": "Retrieve a user by ID through the workflow.",
             "inputs": {
                 "type": "object"
             },
@@ -145,6 +147,7 @@ public class ArazzoWorkflowTests
         {
             "workflowId": "testWorkflow",
             "summary": "Test workflow",
+            "description": "Test workflow description",
             "inputs": {
                 "type": "object"
             },
@@ -158,6 +161,7 @@ public class ArazzoWorkflowTests
 
         Assert.Equal("testWorkflow", workflow.WorkflowId);
         Assert.Equal("Test workflow", workflow.Summary);
+        Assert.Equal("Test workflow description", workflow.Description);
         Assert.NotNull(workflow.Inputs);
         Assert.Equal(JsonSchemaType.Object, workflow.Inputs!.Type);
 

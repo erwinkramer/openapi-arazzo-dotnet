@@ -18,6 +18,16 @@ public class ArazzoInfo : IArazzoSerializable, IArazzoExtensible
     /// </summary>
     public string? Version { get; set; }
 
+    /// <summary>
+    /// Gets or sets the summary of the Arazzo.
+    /// </summary>
+    public string? Summary { get; set; }
+
+    /// <summary>
+    /// Gets or sets the description of the Arazzo.
+    /// </summary>
+    public string? Description { get; set; }
+
     /// <inheritdoc/>
     public IDictionary<string, IArazzoExtension>? Extensions { get; set; }
 
@@ -30,6 +40,8 @@ public class ArazzoInfo : IArazzoSerializable, IArazzoExtensible
         writer.WriteStartObject();
         writer.WriteProperty(ArazzoConstants.ArazzoInfoTitle, Title);
         writer.WriteProperty(ArazzoConstants.ArazzoInfoVersion, Version);
+        writer.WriteProperty(ArazzoConstants.ArazzoInfoSummary, Summary);
+        writer.WriteProperty(ArazzoConstants.ArazzoInfoDescription, Description);
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();
     }

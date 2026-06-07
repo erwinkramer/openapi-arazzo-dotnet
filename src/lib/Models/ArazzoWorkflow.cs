@@ -20,6 +20,11 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
     public string? Summary { get; set; }
 
     /// <summary>
+    /// Gets or sets the description of the workflow.
+    /// </summary>
+    public string? Description { get; set; }
+
+    /// <summary>
     /// Gets or sets the inputs schema.
     /// </summary>
     public IArazzoInput? Inputs { get; set; }
@@ -74,6 +79,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
         writer.WriteStartObject();
         writer.WriteProperty(ArazzoConstants.ArazzoWorkflowWorkflowId, WorkflowId);
         writer.WriteProperty(ArazzoConstants.ArazzoWorkflowSummary, Summary);
+        writer.WriteProperty(ArazzoConstants.ArazzoWorkflowDescription, Description);
 
         // Write inputs
         writer.WriteOptionalObject(ArazzoConstants.ArazzoWorkflowInputs, Inputs, static (w, i) => i.SerializeAsV1(w));

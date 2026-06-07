@@ -80,9 +80,13 @@ BinkyLabs.OpenApi.Arazzo.ArazzoFailureType.Goto = 2 -> BinkyLabs.OpenApi.Arazzo.
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureType.Retry = 1 -> BinkyLabs.OpenApi.Arazzo.ArazzoFailureType
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo.ArazzoInfo() -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Description.get -> string?
+BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Description.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Extensions.get -> System.Collections.Generic.IDictionary<string!, BinkyLabs.OpenApi.Arazzo.IArazzoExtension!>?
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Extensions.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo.SerializeAsV1(Microsoft.OpenApi.IOpenApiWriter! writer) -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Summary.get -> string?
+BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Summary.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Title.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Title.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInfo.Version.get -> string?
@@ -403,6 +407,8 @@ BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow
 BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.ArazzoWorkflow() -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.DependsOn.get -> System.Collections.Generic.ISet<string!>?
 BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.DependsOn.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.Description.get -> string?
+BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.Description.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.Extensions.get -> System.Collections.Generic.IDictionary<string!, BinkyLabs.OpenApi.Arazzo.IArazzoExtension!>?
 BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.Extensions.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoWorkflow.FailureActions.get -> System.Collections.Generic.IList<BinkyLabs.OpenApi.Arazzo.IArazzoFailureAction!>?
@@ -664,6 +670,8 @@ const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoFailureActionRetryAfter = "
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoFailureActionRetryLimit = "retryLimit" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoInfoTitle = "title" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoInfoVersion = "version" -> string!
+const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoInfoSummary = "summary" -> string!
+const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoInfoDescription = "description" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoParameterIn = "in" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoParameterName = "name" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoParameterValue = "value" -> string!
@@ -694,6 +702,7 @@ const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoStepStepId = "stepId" -> st
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoStepSuccessCriteria = "successCriteria" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoStepWorkflowId = "workflowId" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoWorkflowDependsOn = "dependsOn" -> string!
+const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoWorkflowDescription = "description" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoWorkflowFailureActions = "failureActions" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoWorkflowInputs = "inputs" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoWorkflowOutputs = "outputs" -> string!

@@ -12,6 +12,7 @@ internal static partial class ArazzoV1Deserializer
     {
         { ArazzoConstants.ArazzoWorkflowWorkflowId, static (o, v, c) => o.WorkflowId = v.GetScalarValue() },
         { ArazzoConstants.ArazzoWorkflowSummary, static (o, v, c) => o.Summary = v.GetScalarValue() },
+        { ArazzoConstants.ArazzoWorkflowDescription, static (o, v, c) => o.Description = v.GetScalarValue() },
         { ArazzoConstants.ArazzoWorkflowInputs, static (o, v, c) => o.Inputs = LoadSchema(v, c) },
         { ArazzoConstants.ArazzoWorkflowDependsOn, static (o, v, c) =>
         {

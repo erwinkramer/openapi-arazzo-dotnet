@@ -18,7 +18,9 @@ public class ArazzoInfoTests
         var arazzoInfo = new ArazzoInfo
         {
             Title = "Test Arazzo",
-            Version = "1.0.0"
+            Version = "1.0.0",
+            Summary = "A concise summary",
+            Description = "A longer description"
         };
         using var textWriter = new StringWriter();
         var writer = new OpenApiJsonWriter(textWriter);
@@ -27,7 +29,9 @@ public class ArazzoInfoTests
 """
 {
     "title": "Test Arazzo",
-    "version": "1.0.0"
+    "version": "1.0.0",
+    "summary": "A concise summary",
+    "description": "A longer description"
 }
 """;
 
@@ -49,7 +53,9 @@ public class ArazzoInfoTests
         var json = """
         {
             "title": "Test Arazzo",
-            "version": "1.0.0"
+            "version": "1.0.0",
+            "summary": "A concise summary",
+            "description": "A longer description"
         }
         """;
         var jsonNode = JsonNode.Parse(json)!;
@@ -62,5 +68,7 @@ public class ArazzoInfoTests
         // Assert
         Assert.Equal("Test Arazzo", arazzoInfo.Title);
         Assert.Equal("1.0.0", arazzoInfo.Version);
+        Assert.Equal("A concise summary", arazzoInfo.Summary);
+        Assert.Equal("A longer description", arazzoInfo.Description);
     }
 }

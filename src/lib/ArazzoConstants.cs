@@ -39,6 +39,14 @@ public static class ArazzoConstants
     /// The "version" field name in the Arazzo Info object.
     /// </summary>
     public const string ArazzoInfoVersion = "version";
+    /// <summary>
+    /// The "summary" field name in the Arazzo Info object.
+    /// </summary>
+    public const string ArazzoInfoSummary = "summary";
+    /// <summary>
+    /// The "description" field name in the Arazzo Info object.
+    /// </summary>
+    public const string ArazzoInfoDescription = "description";
 
     // ArazzoParameter
     /// <summary>
@@ -231,6 +239,10 @@ public static class ArazzoConstants
     /// The "summary" field name in the Arazzo Workflow object.
     /// </summary>
     public const string ArazzoWorkflowSummary = "summary";
+    /// <summary>
+    /// The "description" field name in the Arazzo Workflow object.
+    /// </summary>
+    public const string ArazzoWorkflowDescription = "description";
     /// <summary>
     /// The "inputs" field name in the Arazzo Workflow object.
     /// </summary>
