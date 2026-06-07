@@ -1,5 +1,7 @@
 using System.Text.Json.Nodes;
 
+using BinkyLabs.OpenApi.Arazzo.Validation;
+
 namespace BinkyLabs.OpenApi.Arazzo.Reader.V1;
 
 internal static partial class ArazzoV1Deserializer
@@ -18,6 +20,7 @@ internal static partial class ArazzoV1Deserializer
         { ArazzoConstants.ArazzoStepOnFailure, static (o, v, c) => o.OnFailure = v.CreateList<IArazzoFailureAction>(LoadFailureAction, c) },
         { ArazzoConstants.ArazzoStepOutputs, static (o, v, c) =>
         {
+            ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoStep)}.{nameof(ArazzoStep.Outputs)}");
             o.Outputs = v.CreateSimpleMap(static n => n.GetScalarValue(), c)
                 .Where(static x => x.Value is not null)
                 .ToDictionary(static x => x.Key, static x => x.Value!);

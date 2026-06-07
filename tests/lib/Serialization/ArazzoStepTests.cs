@@ -202,6 +202,45 @@ public class ArazzoStepTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithInvalidOutputKey_ThrowsArazzoSerializationException()
+    {
+        var step = new ArazzoStep
+        {
+            StepId = "invalidOutputStep",
+            Outputs = new Dictionary<string, string>
+            {
+                ["invalid key"] = "$response.body#/id"
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => step.SerializeAsV1(writer));
+
+        Assert.Contains("Invalid key: 'invalid key'", exception.Message);
+    }
+
+    [Fact]
+    public void Deserialize_WithInvalidOutputKey_AddsDiagnosticError()
+    {
+        var json = """
+        {
+            "stepId": "invalidOutputStep",
+            "outputs": {
+                "invalid key": "$response.body#/id"
+            }
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        var step = ArazzoV1Deserializer.LoadStep(jsonNode, parsingContext);
+
+        Assert.NotNull(step.Outputs);
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("Invalid key: 'invalid key'", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void SerializeAsV1_WithReferences_WritesReferenceObjects()
     {
         var step = new ArazzoStep
