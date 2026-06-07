@@ -47,6 +47,10 @@ public class ArazzoJsonReader : IArazzoReader
         {
             diagnostic.Errors.Add(new(ex));
         }
+        catch (OpenApiUnsupportedSpecVersionException ex)
+        {
+            diagnostic.Errors.Add(new OpenApiError(string.Empty, ex.Message));
+        }
 
         // Validate the document
         if (document is not null && settings.OpenApiSettings.RuleSet is not null && settings.OpenApiSettings.RuleSet.Rules.Any())

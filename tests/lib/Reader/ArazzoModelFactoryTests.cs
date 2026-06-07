@@ -9,7 +9,7 @@ public sealed partial class ArazzoModelFactoryTests
     private readonly string documentJson =
         """
         {
-          "Arazzo": "1.0.0",
+          "arazzo": "1.0.0",
           "info": {
             "title": "Sample Arazzo",
             "version": "1.0.0"
@@ -20,7 +20,7 @@ public sealed partial class ArazzoModelFactoryTests
 
     private readonly string documentYaml =
         """
-        Arazzo: 1.0.0
+        arazzo: 1.0.0
         info:
           title: Sample Arazzo
           version: 1.0.0

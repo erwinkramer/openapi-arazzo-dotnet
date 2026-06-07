@@ -71,7 +71,7 @@ public sealed partial class ArazzoModelFactoryTests
     {
         var ct = TestContext.Current.CancellationToken;
         var yaml = """
-            Arazzo: 1.0.0
+            arazzo: 1.0.0
             info:
               title: T
               version: '1'

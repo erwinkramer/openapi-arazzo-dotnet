@@ -120,4 +120,29 @@ public class ArazzoSourceDescriptionTests
         Assert.Equal("https://example.com/arazzo", sourceDescription.Url?.ToString());
         Assert.Equal(ArazzoDescriptionType.Arazzo, sourceDescription.Type);
     }
+
+    [Fact]
+    public void Deserialize_WithRelativeUrl_ShouldSetRelativeUri()
+    {
+        // Arrange
+        var json = """
+        {
+            "name": "Relative Source",
+            "url": "./relative-openapi.yaml",
+            "type": "openapi"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        // Act
+        var sourceDescription = ArazzoV1Deserializer.LoadSourceDescription(jsonNode, parsingContext);
+
+        // Assert
+        Assert.Equal("Relative Source", sourceDescription.Name);
+        Assert.NotNull(sourceDescription.Url);
+        Assert.False(sourceDescription.Url!.IsAbsoluteUri);
+        Assert.Equal("./relative-openapi.yaml", sourceDescription.Url.ToString());
+        Assert.Equal(ArazzoDescriptionType.OpenAPI, sourceDescription.Type);
+    }
 }

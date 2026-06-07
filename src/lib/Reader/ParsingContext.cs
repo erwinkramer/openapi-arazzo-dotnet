@@ -50,7 +50,7 @@ public class ParsingContext
     {
         Diagnostic = diagnostic;
     }
-    private const string ArazzoV1Version = "1.0.0";
+    private static readonly string[] ArazzoV1Versions = ["1.0.0", "1.0.1"];
 
     /// <summary>
     /// Initiates the parsing process.  Not thread safe and should only be called once on a parsing context
@@ -68,7 +68,7 @@ public class ParsingContext
 
         switch (inputVersion)
         {
-            case string version when ArazzoV1Version.Equals(version, StringComparison.OrdinalIgnoreCase):
+            case string version when IsArazzoV1Version(version):
                 VersionService = new ArazzoV1VersionService(Diagnostic);
                 doc = VersionService.LoadDocument(jsonNode, location, this);
                 this.Diagnostic.SpecificationVersion = ArazzoSpecVersion.Arazzo1_0;
@@ -111,7 +111,7 @@ public class ParsingContext
     /// </summary>
     private static string GetVersion(JsonNode jsonNode)
     {
-        var versionNode = new JsonPointer("/Arazzo").Find(jsonNode);
+        var versionNode = new JsonPointer($"/{ArazzoConstants.ArazzoDocumentArazzo}").Find(jsonNode);
 
         if (versionNode is null)
         {
@@ -125,6 +125,11 @@ public class ParsingContext
         }
 
         return version;
+    }
+
+    private static bool IsArazzoV1Version(string version)
+    {
+        return ArazzoV1Versions.Any(supportedVersion => supportedVersion.Equals(version, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -249,7 +254,7 @@ public class ParsingContext
 
     private void ValidateRequiredFields(ArazzoDocument doc, string version)
     {
-        if (ArazzoV1Version.Equals(version, StringComparison.OrdinalIgnoreCase) && JsonNode is not null)
+        if (IsArazzoV1Version(version) && JsonNode is not null)
         {
             if (doc.Info == null)
                 Diagnostic.Errors.Add(new OpenApiError("", $"Info is a REQUIRED field at {GetLocation()}"));

@@ -379,7 +379,7 @@ public class ArazzoDocumentTests
         const string json =
             """
             {
-              "Arazzo": "1.0.0",
+              "arazzo": "1.0.0",
               "info": {
                 "title": "Loaded from stream",
                 "version": "1.0.0"
@@ -403,7 +403,7 @@ public class ArazzoDocumentTests
         const string json =
             """
             {
-              "Arazzo": "1.0.0",
+              "arazzo": "1.0.0",
               "info": {
                 "title": "Parsed document",
                 "version": "1.0.0"
@@ -425,7 +425,7 @@ public class ArazzoDocumentTests
         const string json =
             """
             {
-              "Arazzo": "1.0.0",
+              "arazzo": "1.0.0",
               "info": {
                 "title": "Loaded from file",
                 "version": "1.0.0"

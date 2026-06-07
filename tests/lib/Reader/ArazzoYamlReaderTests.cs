@@ -8,7 +8,7 @@ namespace BinkyLabs.OpenApi.Arazzo.Tests.Reader;
 public class ArazzoYamlReaderTests
 {
     private const string ValidYaml = """
-        Arazzo: 1.0.0
+        arazzo: 1.0.0
         info:
           title: T
           version: '1'

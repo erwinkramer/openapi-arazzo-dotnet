@@ -126,7 +126,26 @@ public class ParsingContextTests
         var ctx = CreateContext();
         var jsonNode = JsonNode.Parse("""
             {
-              "Arazzo": "1.0.0",
+              "arazzo": "1.0.0",
+              "info": { "title": "T", "version": "1" },
+              "sourceDescriptions": []
+            }
+            """)!;
+
+        var doc = ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.NotNull(doc);
+        Assert.NotNull(doc.Info);
+        Assert.Equal(ArazzoSpecVersion.Arazzo1_0, ctx.Diagnostic.SpecificationVersion);
+    }
+
+    [Fact]
+    public void Parse_ArazzoVersion101_ReturnsDocument()
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse("""
+            {
+              "arazzo": "1.0.1",
               "info": { "title": "T", "version": "1" },
               "sourceDescriptions": []
             }
@@ -145,7 +164,7 @@ public class ParsingContextTests
         var ctx = CreateContext();
         var jsonNode = JsonNode.Parse("""
             {
-              "Arazzo": "1.0.0",
+              "arazzo": "1.0.0",
               "sourceDescriptions": []
             }
             """)!;
@@ -171,7 +190,7 @@ public class ParsingContextTests
     {
         var ctx = CreateContext();
         var jsonNode = JsonNode.Parse("""
-            { "Arazzo": "9.9.9", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [] }
+            { "arazzo": "9.9.9", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [] }
             """)!;
 
         Assert.Throws<OpenApiUnsupportedSpecVersionException>(() => ctx.Parse(jsonNode, new Uri("https://example.com/")));

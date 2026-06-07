@@ -12,7 +12,7 @@ public class ArazzoJsonReaderRuleSetTests
 {
     private const string ValidJson = """
         {
-          "Arazzo": "1.0.0",
+          "arazzo": "1.0.0",
           "info": { "title": "T", "version": "1" },
           "sourceDescriptions": [ { "name": "s", "url": "https://example.com", "type": "openapi" } ]
         }
