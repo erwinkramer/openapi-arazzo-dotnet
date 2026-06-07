@@ -44,7 +44,7 @@ internal static partial class ArazzoV1Deserializer
         return schema is OpenApiSchema openApiSchema ? ArazzoInput.ConvertFromOpenApiSchema(openApiSchema, host) : null;
     }
 
-    private static string GetReferenceId(string referenceString)
+    internal static string GetReferenceId(string referenceString)
     {
         var fragment = referenceString.Contains('#', StringComparison.Ordinal)
             ? referenceString[(referenceString.IndexOf('#', StringComparison.Ordinal) + 1)..]
@@ -72,7 +72,7 @@ internal static partial class ArazzoV1Deserializer
         return referenceString;
     }
 
-    private static string? GetExternalResource(string referenceString)
+    internal static string? GetExternalResource(string referenceString)
     {
         var fragmentIndex = referenceString.IndexOf('#', StringComparison.Ordinal);
         return fragmentIndex > 0 ? referenceString[..fragmentIndex] : null;

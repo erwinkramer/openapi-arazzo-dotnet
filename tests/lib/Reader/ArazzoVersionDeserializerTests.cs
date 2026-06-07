@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json.Nodes;
 
 using BinkyLabs.OpenApi.Arazzo.Reader;
@@ -63,9 +62,7 @@ public class ArazzoVersionDeserializerTests
     [InlineData("shared", "shared")]
     public void GetReferenceId_ExtractsExpectedIdentifier(string referenceString, string expectedId)
     {
-        var result = (string)typeof(global::BinkyLabs.OpenApi.Arazzo.Reader.V1.ArazzoV1Deserializer)
-            .GetMethod("GetReferenceId", BindingFlags.NonPublic | BindingFlags.Static)!
-            .Invoke(null, [referenceString])!;
+        var result = global::BinkyLabs.OpenApi.Arazzo.Reader.V1.ArazzoV1Deserializer.GetReferenceId(referenceString);
 
         Assert.Equal(expectedId, result);
     }
@@ -76,9 +73,7 @@ public class ArazzoVersionDeserializerTests
     [InlineData("shared", null)]
     public void GetExternalResource_ReturnsExpectedPrefix(string referenceString, string? expectedExternalResource)
     {
-        var result = (string?)typeof(global::BinkyLabs.OpenApi.Arazzo.Reader.V1.ArazzoV1Deserializer)
-            .GetMethod("GetExternalResource", BindingFlags.NonPublic | BindingFlags.Static)!
-            .Invoke(null, [referenceString]);
+        var result = global::BinkyLabs.OpenApi.Arazzo.Reader.V1.ArazzoV1Deserializer.GetExternalResource(referenceString);
 
         Assert.Equal(expectedExternalResource, result);
     }
