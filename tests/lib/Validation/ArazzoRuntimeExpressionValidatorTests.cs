@@ -1,0 +1,41 @@
+using BinkyLabs.OpenApi.Arazzo.Validation;
+
+namespace BinkyLabs.OpenApi.Arazzo.Tests.Validation;
+
+public class ArazzoRuntimeExpressionValidatorTests
+{
+    [Theory]
+    [InlineData("$url")]
+    [InlineData("$method")]
+    [InlineData("$statusCode")]
+    [InlineData("$request.header.accept")]
+    [InlineData("$request.query.userId")]
+    [InlineData("$request.path.petId")]
+    [InlineData("$request.body#/user/uuid")]
+    [InlineData("$response.body#/status")]
+    [InlineData("$response.body.eligibilityCheckRequired")]
+    [InlineData("$response.headers.Location")]
+    [InlineData("$inputs.username")]
+    [InlineData("$outputs.bar")]
+    [InlineData("$steps.someStepId.outputs.pets#/0/id")]
+    [InlineData("$workflows.foo.outputs.mappedResponse#/name")]
+    [InlineData("$sourceDescriptions.petstoreDescription.url")]
+    [InlineData("$components.parameters.foo")]
+    [InlineData("$components.successActions.notify")]
+    public void IsRuntimeExpression_WithValidExpression_ReturnsTrue(string expression)
+    {
+        Assert.True(ArazzoRuntimeExpressionValidator.IsRuntimeExpression(expression));
+    }
+
+    [Theory]
+    [InlineData("url")]
+    [InlineData("$request.header.")]
+    [InlineData("$request.body#/bad~2pointer")]
+    [InlineData("$inputs")]
+    [InlineData("$")]
+    [InlineData("")]
+    public void IsRuntimeExpression_WithInvalidExpression_ReturnsFalse(string expression)
+    {
+        Assert.False(ArazzoRuntimeExpressionValidator.IsRuntimeExpression(expression));
+    }
+}
