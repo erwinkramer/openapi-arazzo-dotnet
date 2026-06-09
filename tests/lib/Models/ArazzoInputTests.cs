@@ -157,6 +157,9 @@ public class ArazzoInputTests
             UnrecognizedKeywords = new Dictionary<string, JsonNode>
             {
                 ["$anchor"] = JsonValue.Create("shared")!,
+                ["contains"] = JsonNode.Parse("""{"type":"string"}""")!,
+                ["maxContains"] = JsonValue.Create((uint)5)!,
+                ["minContains"] = JsonValue.Create((uint)1)!,
                 ["contentEncoding"] = JsonValue.Create("base64")!,
                 ["contentMediaType"] = JsonValue.Create("application/json")!,
                 ["contentSchema"] = JsonNode.Parse("""{"type":"string"}""")!,
@@ -225,6 +228,9 @@ public class ArazzoInputTests
         Assert.Equal("base64", input.ContentEncoding);
         Assert.Equal("application/json", input.ContentMediaType);
         Assert.Equal(JsonSchemaType.String, input.ContentSchema?.Type);
+        Assert.Equal(JsonSchemaType.String, input.Contains?.Type);
+        Assert.Equal((uint?)5, input.MaxContains);
+        Assert.Equal((uint?)1, input.MinContains);
         Assert.Equal("^[a-z]+$", input.PropertyNames?.Pattern);
         Assert.Equal(JsonSchemaType.String, input.DependentSchemas?["type"].Type);
         Assert.Contains("type", input.If?.Required!);
@@ -287,6 +293,9 @@ public class ArazzoInputTests
             },
             UnevaluatedPropertiesSchema = new ArazzoInput { Type = JsonSchemaType.Number },
             Anchor = "shared",
+            Contains = new ArazzoInput { Type = JsonSchemaType.String },
+            MaxContains = 5,
+            MinContains = 1,
             ContentEncoding = "base64",
             ContentMediaType = "application/json",
             ContentSchema = new ArazzoInput { Type = JsonSchemaType.String },
@@ -312,6 +321,9 @@ public class ArazzoInputTests
         Assert.Equal(JsonSchemaType.Boolean, schema.PatternProperties?["^x-"].Type);
         Assert.Equal(JsonSchemaType.Number, schema.UnevaluatedPropertiesSchema?.Type);
         Assert.Equal("shared", schema.UnrecognizedKeywords?["$anchor"]?.GetValue<string>());
+        Assert.Equal("string", schema.UnrecognizedKeywords?["contains"]?["type"]?.GetValue<string>());
+        Assert.Equal((uint)5, schema.UnrecognizedKeywords?["maxContains"]?.GetValue<uint>());
+        Assert.Equal((uint)1, schema.UnrecognizedKeywords?["minContains"]?.GetValue<uint>());
         Assert.Equal("base64", schema.UnrecognizedKeywords?["contentEncoding"]?.GetValue<string>());
         Assert.Equal("application/json", schema.UnrecognizedKeywords?["contentMediaType"]?.GetValue<string>());
         Assert.Equal("string", schema.UnrecognizedKeywords?["contentSchema"]?["type"]?.GetValue<string>());
@@ -686,6 +698,9 @@ public class ArazzoInputTests
         public bool Deprecated { get; set; }
         public IDictionary<string, HashSet<string>>? DependentRequired { get; set; }
         public IDictionary<string, IArazzoExtension>? Extensions { get; set; }
+        public IArazzoInput? Contains { get; set; }
+        public uint? MaxContains { get; set; }
+        public uint? MinContains { get; set; }
 
         public void SerializeAsV1(IOpenApiWriter writer)
         {

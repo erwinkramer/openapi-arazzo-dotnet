@@ -12,6 +12,9 @@ namespace BinkyLabs.OpenApi.Arazzo;
 public class ArazzoInput : IArazzoInput
 {
     private const string AnchorKeyword = "$anchor";
+    private const string ContainsKeyword = "contains";
+    private const string MaxContainsKeyword = "maxContains";
+    private const string MinContainsKeyword = "minContains";
     private const string ContentEncodingKeyword = "contentEncoding";
     private const string ContentMediaTypeKeyword = "contentMediaType";
     private const string ContentSchemaKeyword = "contentSchema";
@@ -66,6 +69,9 @@ public class ArazzoInput : IArazzoInput
         MaxItems = source.MaxItems;
         MinItems = source.MinItems;
         UniqueItems = source.UniqueItems;
+        Contains = source.Contains;
+        MaxContains = source.MaxContains;
+        MinContains = source.MinContains;
         Properties = source.Properties is null ? null : new Dictionary<string, IArazzoInput>(source.Properties);
         PatternProperties = source.PatternProperties is null ? null : new Dictionary<string, IArazzoInput>(source.PatternProperties);
         MaxProperties = source.MaxProperties;
@@ -187,6 +193,15 @@ public class ArazzoInput : IArazzoInput
 
     /// <inheritdoc />
     public bool? UniqueItems { get; set; }
+
+    /// <inheritdoc />
+    public IArazzoInput? Contains { get; set; }
+
+    /// <inheritdoc />
+    public uint? MaxContains { get; set; }
+
+    /// <inheritdoc />
+    public uint? MinContains { get; set; }
 
     /// <inheritdoc />
     public IDictionary<string, IArazzoInput>? Properties { get; set; }
@@ -338,6 +353,9 @@ public class ArazzoInput : IArazzoInput
             MaxItems = schema.MaxItems,
             MinItems = schema.MinItems,
             UniqueItems = schema.UniqueItems,
+            Contains = GetSchemaKeyword(openApiSchema.UnrecognizedKeywords, ContainsKeyword, hostDocument),
+            MaxContains = GetUIntKeyword(openApiSchema.UnrecognizedKeywords, MaxContainsKeyword),
+            MinContains = GetUIntKeyword(openApiSchema.UnrecognizedKeywords, MinContainsKeyword),
             Properties = ConvertSchemaMap(schema.Properties, hostDocument),
             PatternProperties = ConvertSchemaMap(schema.PatternProperties, hostDocument),
             MaxProperties = schema.MaxProperties,
@@ -421,6 +439,9 @@ public class ArazzoInput : IArazzoInput
         };
 
         SetUnrecognizedKeyword(schema, AnchorKeyword, input.Anchor is null ? null : JsonValue.Create(input.Anchor));
+        SetUnrecognizedKeyword(schema, ContainsKeyword, ToJsonNode(input.Contains));
+        SetUnrecognizedKeyword(schema, MaxContainsKeyword, input.MaxContains is null ? null : JsonValue.Create(input.MaxContains.Value));
+        SetUnrecognizedKeyword(schema, MinContainsKeyword, input.MinContains is null ? null : JsonValue.Create(input.MinContains.Value));
         SetUnrecognizedKeyword(schema, ContentEncodingKeyword, input.ContentEncoding is null ? null : JsonValue.Create(input.ContentEncoding));
         SetUnrecognizedKeyword(schema, ContentMediaTypeKeyword, input.ContentMediaType is null ? null : JsonValue.Create(input.ContentMediaType));
         SetUnrecognizedKeyword(schema, ContentSchemaKeyword, ToJsonNode(input.ContentSchema));
@@ -520,6 +541,16 @@ public class ArazzoInput : IArazzoInput
         }
 
         return value.TryGetValue<string>(out var text) ? text : null;
+    }
+
+    private static uint? GetUIntKeyword(IDictionary<string, JsonNode>? keywords, string key)
+    {
+        if (keywords is null || !keywords.TryGetValue(key, out var node) || node is not JsonValue value)
+        {
+            return null;
+        }
+
+        return value.TryGetValue<uint>(out var result) ? result : null;
     }
 
     private static IArazzoInput? GetSchemaKeyword(IDictionary<string, JsonNode>? keywords, string key, ArazzoDocument? hostDocument)

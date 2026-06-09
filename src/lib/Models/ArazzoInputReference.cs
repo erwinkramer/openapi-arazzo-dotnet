@@ -279,6 +279,27 @@ public class ArazzoInputReference : BaseArazzoReferenceHolder<ArazzoInput, IAraz
     }
 
     /// <inheritdoc />
+    public IArazzoInput? Contains
+    {
+        get => Target?.Contains;
+        set => ThrowUnsupportedOverride(nameof(Contains));
+    }
+
+    /// <inheritdoc />
+    public uint? MaxContains
+    {
+        get => Target?.MaxContains;
+        set => ThrowUnsupportedOverride(nameof(MaxContains));
+    }
+
+    /// <inheritdoc />
+    public uint? MinContains
+    {
+        get => Target?.MinContains;
+        set => ThrowUnsupportedOverride(nameof(MinContains));
+    }
+
+    /// <inheritdoc />
     public IDictionary<string, IArazzoInput>? Properties
     {
         get => Target?.Properties;

@@ -107,6 +107,8 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInput.Comment.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Comment.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Const.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Const.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.Contains.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.Contains.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.ContentEncoding.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.ContentEncoding.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.ContentMediaType.get -> string?
@@ -151,6 +153,8 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxItems.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxItems.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxLength.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxLength.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxContains.get -> uint?
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxContains.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxProperties.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MaxProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Maximum.get -> string?
@@ -159,6 +163,8 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinItems.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinItems.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinLength.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinLength.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinContains.get -> uint?
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinContains.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinProperties.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.MinProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Minimum.get -> string?
@@ -219,6 +225,8 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Comment.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Comment.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Const.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Const.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Contains.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Contains.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.ContentEncoding.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.ContentEncoding.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.ContentMediaType.get -> string?
@@ -265,6 +273,8 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxItems.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxItems.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxLength.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxLength.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxContains.get -> uint?
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxContains.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxProperties.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MaxProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Maximum.get -> string?
@@ -273,6 +283,8 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinItems.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinItems.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinLength.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinLength.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinContains.get -> uint?
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinContains.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinProperties.get -> int?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.MinProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Minimum.get -> string?
@@ -503,6 +515,8 @@ BinkyLabs.OpenApi.Arazzo.IArazzoInput.Comment.get -> string?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Comment.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Const.get -> string?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Const.set -> void
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.Contains.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.Contains.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.ContentEncoding.get -> string?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.ContentEncoding.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.ContentMediaType.get -> string?
@@ -545,6 +559,8 @@ BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxItems.get -> int?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxItems.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxLength.get -> int?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxLength.set -> void
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxContains.get -> uint?
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxContains.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxProperties.get -> int?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MaxProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Maximum.get -> string?
@@ -553,6 +569,8 @@ BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinItems.get -> int?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinItems.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinLength.get -> int?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinLength.set -> void
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinContains.get -> uint?
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinContains.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinProperties.get -> int?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.MinProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Minimum.get -> string?

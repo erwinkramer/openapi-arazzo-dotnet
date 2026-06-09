@@ -311,4 +311,23 @@ public interface IArazzoInput : IArazzoReferenceable, IArazzoExtensible
     /// Follow JSON Schema definition:https://json-schema.org/draft/2020-12/json-schema-validation#section-6.5.4
     /// </summary>
     IDictionary<string, HashSet<string>>? DependentRequired { get; set; }
+
+    /// <summary>
+    /// Follow JSON Schema definition: https://json-schema.org/draft/2020-12/json-schema-core#name-contains
+    /// An array instance is valid against "contains" if at least one of its elements is valid against this schema.
+    /// Inline or referenced schema MUST be of a Schema Object and not a standard JSON Schema.
+    /// </summary>
+    IArazzoInput? Contains { get; set; }
+
+    /// <summary>
+    /// Follow JSON Schema definition: https://json-schema.org/draft/2020-12/json-schema-validation
+    /// The number of elements matching the "contains" schema MUST be less than or equal to this value.
+    /// </summary>
+    uint? MaxContains { get; set; }
+
+    /// <summary>
+    /// Follow JSON Schema definition: https://json-schema.org/draft/2020-12/json-schema-validation
+    /// The number of elements matching the "contains" schema MUST be greater than or equal to this value.
+    /// </summary>
+    uint? MinContains { get; set; }
 }
