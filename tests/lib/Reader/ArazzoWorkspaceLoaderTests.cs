@@ -99,13 +99,15 @@ public class ArazzoWorkspaceLoaderTests
     public async Task LoadAsync_ExternalInputReferencedAndReExported_DoesNotProduceCircularReferenceError()
     {
         var tempDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(tempDirectory);
+        try
+        {
+            Directory.CreateDirectory(tempDirectory);
 
-        var rootPath = Path.Join(tempDirectory, "root.arazzo.yaml");
-        var sharedPath = Path.Join(tempDirectory, "shared.arazzo.yaml");
+            var rootPath = Path.Join(tempDirectory, "root.arazzo.yaml");
+            var sharedPath = Path.Join(tempDirectory, "shared.arazzo.yaml");
 
-        await File.WriteAllTextAsync(rootPath,
-        @"arazzo: 1.0.1
+            await File.WriteAllTextAsync(rootPath,
+            @"arazzo: 1.0.1
 info:
   title: T
   version: 1.0.0
@@ -126,8 +128,8 @@ components:
       $ref: './shared.arazzo.yaml#/components/inputs/Leaf'
 ", TestContext.Current.CancellationToken);
 
-        await File.WriteAllTextAsync(sharedPath,
-        @"arazzo: 1.0.1
+            await File.WriteAllTextAsync(sharedPath,
+            @"arazzo: 1.0.1
 info:
   title: Shared
   version: 1.0.0
@@ -151,8 +153,6 @@ components:
           type: integer
 ", TestContext.Current.CancellationToken);
 
-        try
-        {
             var settings = new ArazzoReaderSettings();
             settings.OpenApiSettings.LoadExternalRefs = true;
             settings.OpenApiSettings.RuleSet = ValidationRuleSet.GetEmptyRuleSet();
@@ -167,7 +167,10 @@ components:
         }
         finally
         {
-            Directory.Delete(tempDirectory, true);
+            if (Directory.Exists(tempDirectory))
+            {
+                Directory.Delete(tempDirectory, true);
+            }
         }
     }
 
