@@ -96,7 +96,7 @@ public class ArazzoWorkspaceLoaderTests
     }
 
     [Fact]
-    public async Task LoadAsync_ExternalInputReferencedDirectlyAndReExportedAtRootDoesNotProduceFalsePositiveCircularReference()
+    public async Task LoadAsync_ExternalInputReferencedAndReExported_DoesNotProduceCircularReferenceError()
     {
         var tempDirectory = Path.Join(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDirectory);
