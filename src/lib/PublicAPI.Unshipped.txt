@@ -188,14 +188,14 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInput.Title.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Title.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Then.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Then.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.Else.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
+BinkyLabs.OpenApi.Arazzo.ArazzoInput.Else.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Type.get -> Microsoft.OpenApi.JsonSchemaType?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Type.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.UnevaluatedProperties.get -> bool
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.UnevaluatedProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.UnevaluatedPropertiesSchema.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.UnevaluatedPropertiesSchema.set -> void
-BinkyLabs.OpenApi.Arazzo.ArazzoInput.Else.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
-BinkyLabs.OpenApi.Arazzo.ArazzoInput.Else.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.UniqueItems.get -> bool?
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.UniqueItems.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInput.Vocabulary.get -> System.Collections.Generic.IDictionary<string!, bool>?
@@ -302,14 +302,14 @@ BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Title.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Title.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Then.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Then.set -> void
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Else.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
+BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Else.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Type.get -> Microsoft.OpenApi.JsonSchemaType?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Type.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.UnevaluatedProperties.get -> bool
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.UnevaluatedProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.UnevaluatedPropertiesSchema.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.UnevaluatedPropertiesSchema.set -> void
-BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Else.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
-BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Else.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.UniqueItems.get -> bool?
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.UniqueItems.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoInputReference.Vocabulary.get -> System.Collections.Generic.IDictionary<string!, bool>?
@@ -581,14 +581,14 @@ BinkyLabs.OpenApi.Arazzo.IArazzoInput.Title.get -> string?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Title.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Then.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Then.set -> void
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.Else.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
+BinkyLabs.OpenApi.Arazzo.IArazzoInput.Else.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Type.get -> Microsoft.OpenApi.JsonSchemaType?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Type.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.UnevaluatedProperties.get -> bool
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.UnevaluatedProperties.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.UnevaluatedPropertiesSchema.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.UnevaluatedPropertiesSchema.set -> void
-BinkyLabs.OpenApi.Arazzo.IArazzoInput.Else.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
-BinkyLabs.OpenApi.Arazzo.IArazzoInput.Else.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.UniqueItems.get -> bool?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.UniqueItems.set -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.Vocabulary.get -> System.Collections.Generic.IDictionary<string!, bool>?
