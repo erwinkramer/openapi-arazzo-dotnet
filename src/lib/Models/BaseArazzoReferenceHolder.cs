@@ -22,7 +22,7 @@ public abstract class BaseArazzoReferenceHolder<T, U, V> : IArazzoReferenceHolde
             {
                 return default;
             }
-            return Reference.HostDocument.ResolveReferenceTo<U>(Reference, this as IArazzoInput);
+            return Reference.HostDocument.ResolveReferenceTo<U>(Reference);
         }
     }
 

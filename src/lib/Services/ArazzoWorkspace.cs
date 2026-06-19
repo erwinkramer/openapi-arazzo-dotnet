@@ -256,7 +256,7 @@ internal class ArazzoWorkspace
     /// <summary>
     /// Recursively resolves an input from a URI fragment.
     /// </summary>
-    internal IArazzoInput? ResolveJsonSchemaReference(string location, IArazzoInput parentInput)
+    internal IArazzoInput? ResolveJsonSchemaReference(string location)
     {
         if (string.IsNullOrEmpty(location) || ToLocationUrl(location) is not Uri uri)
         {
@@ -284,7 +284,7 @@ internal class ArazzoWorkspace
             return default;
         }
 
-        return ResolveSubSchema(parentInput, pathSegments, []);
+        return null;
     }
 
     internal static IArazzoInput? ResolveSubSchema(IArazzoInput schema, string[] pathSegments, Stack<IArazzoInput> visitedSchemas)

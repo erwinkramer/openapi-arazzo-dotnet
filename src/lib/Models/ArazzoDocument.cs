@@ -143,9 +143,9 @@ public class ArazzoDocument : IArazzoSerializable, IArazzoExtensible
         return ArazzoModelFactory.ParseAsync(input, format, settings, cancellationToken);
     }
 
-    internal T? ResolveReferenceTo<T>(BaseArazzoReference reference, IArazzoInput? parentInput) where T : IArazzoReferenceable
+    internal T? ResolveReferenceTo<T>(BaseArazzoReference reference) where T : IArazzoReferenceable
     {
-        if (ResolveReference(reference, reference.IsExternal, parentInput) is T result)
+        if (ResolveReference(reference, reference.IsExternal) is T result)
         {
             return result;
         }
@@ -153,7 +153,7 @@ public class ArazzoDocument : IArazzoSerializable, IArazzoExtensible
         return default;
     }
 
-    internal IArazzoReferenceable? ResolveReference(BaseArazzoReference? reference, bool useExternal, IArazzoInput? parentInput)
+    internal IArazzoReferenceable? ResolveReference(BaseArazzoReference? reference, bool useExternal)
     {
         if (reference is null)
         {
@@ -170,9 +170,9 @@ public class ArazzoDocument : IArazzoSerializable, IArazzoExtensible
 
         var absoluteUri = new Uri(uriLocation).AbsoluteUri;
 
-        if (reference.Type is ReferenceType.Input && absoluteUri.Contains('#') && parentInput is not null)
+        if (reference.Type is ReferenceType.Input && absoluteUri.Contains('#'))
         {
-            return Workspace?.ResolveJsonSchemaReference(absoluteUri, parentInput);
+            return Workspace?.ResolveJsonSchemaReference(absoluteUri);
         }
 
         return Workspace?.ResolveReference<IArazzoReferenceable>(absoluteUri);

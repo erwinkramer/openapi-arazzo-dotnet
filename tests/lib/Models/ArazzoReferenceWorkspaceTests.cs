@@ -492,7 +492,7 @@ public class ArazzoReferenceWorkspaceTests
     {
         var document = new ArazzoDocument();
 
-        Assert.Null(document.ResolveReference(null, useExternal: false, parentInput: null));
+        Assert.Null(document.ResolveReference(null, useExternal: false));
     }
 
     [Fact]
@@ -531,22 +531,14 @@ public class ArazzoReferenceWorkspaceTests
         localReference.SetJsonPointerPath("#/components/inputs/local", "#");
         externalReference.SetJsonPointerPath("#/components/inputs/shared", "#");
 
-        Assert.Same(local, document.ResolveReferenceTo<IArazzoReferenceable>(localReference, null));
-        Assert.Same(external, document.ResolveReferenceTo<IArazzoReferenceable>(externalReference, null));
-        Assert.Null(document.ResolveReferenceTo<TestReferenceable>(localReference, null));
+        Assert.Same(local, document.ResolveReferenceTo<IArazzoReferenceable>(localReference));
+        Assert.Same(external, document.ResolveReferenceTo<IArazzoReferenceable>(externalReference));
+        Assert.Null(document.ResolveReferenceTo<TestReferenceable>(localReference));
     }
 
     [Fact]
     public void ArazzoDocument_ResolveReferenceTo_ReturnsNullWhenNestedParentLookupDoesNotResolveInput()
     {
-        var nested = new ArazzoInput { Type = JsonSchemaType.Boolean };
-        var parent = new ArazzoInput
-        {
-            Definitions = new Dictionary<string, IArazzoInput>
-            {
-                ["flag"] = nested
-            }
-        };
         var document = new ArazzoDocument
         {
             BaseUri = new Uri("https://example.com/root/arazzo.json")
@@ -559,7 +551,7 @@ public class ArazzoReferenceWorkspaceTests
         };
         reference.SetJsonPointerPath("#/$defs/flag", "#");
 
-        Assert.Null(document.ResolveReferenceTo<IArazzoReferenceable>(reference, parent));
+        Assert.Null(document.ResolveReferenceTo<IArazzoReferenceable>(reference));
     }
 
     [Fact]
@@ -598,8 +590,8 @@ public class ArazzoReferenceWorkspaceTests
             HostDocument = document
         };
 
-        Assert.Same(local, document.ResolveReference(localReference, useExternal: false, parentInput: null));
-        Assert.Same(parameter, document.ResolveReference(parameterReference, useExternal: false, parentInput: null));
+        Assert.Same(local, document.ResolveReference(localReference, useExternal: false));
+        Assert.Same(parameter, document.ResolveReference(parameterReference, useExternal: false));
     }
 
     private sealed class TestReferenceable : IArazzoReferenceable
