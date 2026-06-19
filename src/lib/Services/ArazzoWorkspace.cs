@@ -98,6 +98,14 @@ internal class ArazzoWorkspace
     {
         ArgumentNullException.ThrowIfNull(document);
 
+        if (document.Workflows is not null)
+        {
+            for (var index = 0; index < document.Workflows.Count; index++)
+            {
+                RegisterNestedWorkflowInput(document.Workflows[index], $"{document.BaseUri}#/workflows/{index}/inputs");
+            }
+        }
+
         if (document.Components is null)
         {
             return;
@@ -263,7 +271,12 @@ internal class ArazzoWorkspace
             return default;
         }
 
-        var pathSegments = uri.Fragment.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
+        if (_inputRegistry.TryGetValue(uri, out var registeredInput))
+        {
+            return registeredInput;
+        }
+
+        var pathSegments = uri.Fragment.TrimStart('#').Split(['/'], StringSplitOptions.RemoveEmptyEntries);
         if (pathSegments.Length == 0)
         {
             return default;
@@ -421,6 +434,16 @@ internal class ArazzoWorkspace
         RegisterNestedInputList(input.AllOf, $"{location}/{OpenApiConstants.AllOf}");
         RegisterNestedInputList(input.AnyOf, $"{location}/{OpenApiConstants.AnyOf}");
         RegisterNestedInputList(input.OneOf, $"{location}/{OpenApiConstants.OneOf}");
+    }
+
+    private void RegisterNestedWorkflowInput(ArazzoWorkflow workflow, string location)
+    {
+        ArgumentNullException.ThrowIfNull(workflow);
+
+        if (workflow.Inputs is not null)
+        {
+            RegisterInputTree(workflow.Inputs, location);
+        }
     }
 
     private void RegisterNestedInput(IArazzoInput? input, string location)

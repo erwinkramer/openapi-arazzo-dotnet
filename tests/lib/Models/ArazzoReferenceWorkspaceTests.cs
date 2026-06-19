@@ -85,6 +85,36 @@ public class ArazzoReferenceWorkspaceTests
     }
 
     [Fact]
+    public void RegisterComponents_RegistersWorkflowInputsAndResolvesInlineSubSchemas()
+    {
+        var definitionsInput = new ArazzoInput { Type = JsonSchemaType.String };
+        var propertyInput = new ArazzoInput { Type = JsonSchemaType.Integer };
+        var inlineInput = new ArazzoInput
+        {
+            Definitions = new Dictionary<string, IArazzoInput> { ["shared"] = definitionsInput },
+            Properties = new Dictionary<string, IArazzoInput> { ["value"] = propertyInput }
+        };
+        var document = new ArazzoDocument
+        {
+            BaseUri = new Uri("https://example.com/root/arazzo.json"),
+            Workflows =
+            [
+                new ArazzoWorkflow
+                {
+                    WorkflowId = "wf",
+                    Inputs = inlineInput
+                }
+            ]
+        };
+
+        document.RegisterComponents();
+
+        Assert.Same(inlineInput, document.Workspace!.ResolveJsonSchemaReference("https://example.com/root/arazzo.json#/workflows/0/inputs"));
+        Assert.Same(definitionsInput, document.Workspace.ResolveJsonSchemaReference("https://example.com/root/arazzo.json#/workflows/0/inputs/$defs/shared"));
+        Assert.Same(propertyInput, document.Workspace.ResolveJsonSchemaReference("https://example.com/root/arazzo.json#/workflows/0/inputs/properties/value"));
+    }
+
+    [Fact]
     public void ResolveSubSchema_ThrowsForCircularArazzoInputReference()
     {
         var reference = new ArazzoInputReference("loop");
@@ -552,6 +582,55 @@ public class ArazzoReferenceWorkspaceTests
         reference.SetJsonPointerPath("#/$defs/flag", "#");
 
         Assert.Null(document.ResolveReferenceTo<IArazzoReferenceable>(reference));
+    }
+
+    [Fact]
+    public void ArazzoDocument_ResolveReferenceTo_ResolvesInlineInputAndNestedInlineSubSchema()
+    {
+        var definitionsInput = new ArazzoInput { Type = JsonSchemaType.String };
+        var propertyInput = new ArazzoInput
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IArazzoInput>
+            {
+                ["nested"] = new ArazzoInputReference("shared")
+            }
+        };
+        var inlineInput = new ArazzoInput
+        {
+            Definitions = new Dictionary<string, IArazzoInput> { ["shared"] = definitionsInput },
+            Properties = new Dictionary<string, IArazzoInput> { ["value"] = propertyInput }
+        };
+        var document = new ArazzoDocument
+        {
+            BaseUri = new Uri("https://example.com/root/arazzo.json"),
+            Workflows =
+            [
+                new ArazzoWorkflow
+                {
+                    WorkflowId = "wf",
+                    Inputs = inlineInput
+                }
+            ]
+        };
+        document.RegisterComponents();
+
+        var inlineReference = new BaseArazzoReference
+        {
+            Type = ReferenceType.Input,
+            HostDocument = document
+        };
+        inlineReference.SetJsonPointerPath("#/workflows/0/inputs", "#");
+
+        var nestedReference = new BaseArazzoReference
+        {
+            Type = ReferenceType.Input,
+            HostDocument = document
+        };
+        nestedReference.SetJsonPointerPath("#/workflows/0/inputs/$defs/shared", "#");
+
+        Assert.Same(inlineInput, document.ResolveReferenceTo<IArazzoReferenceable>(inlineReference));
+        Assert.Same(definitionsInput, document.ResolveReferenceTo<IArazzoReferenceable>(nestedReference));
     }
 
     [Fact]
