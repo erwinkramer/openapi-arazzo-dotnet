@@ -293,9 +293,11 @@ internal class ArazzoWorkspace
 
         if (pathSegments.Length >= 3 &&
             pathSegments[0].Equals("components", StringComparison.OrdinalIgnoreCase) &&
-            pathSegments[1].Equals(ArazzoConstants.ArazzoComponentInputs, StringComparison.OrdinalIgnoreCase))
+            (pathSegments[1].Equals(ArazzoConstants.ArazzoComponentInputs, StringComparison.OrdinalIgnoreCase) ||
+             // External OpenAPI descriptions can contribute reusable schemas under components.schemas.
+             pathSegments[1].Equals("schemas", StringComparison.OrdinalIgnoreCase)))
         {
-            var fragment = $"components/{ArazzoConstants.ArazzoComponentInputs}/{pathSegments[2]}";
+            var fragment = $"components/{pathSegments[1]}/{pathSegments[2]}";
             var uriBuilder = new UriBuilder(uri) { Fragment = fragment };
 
             if (_inputRegistry.TryGetValue(uriBuilder.Uri, out var targetInput))

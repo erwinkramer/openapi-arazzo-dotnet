@@ -235,6 +235,140 @@ components:
         Assert.Same(sharedSchema, ((ArazzoInputReference)mainDocument.Workflows[0].Inputs!).Target);
     }
 
+    [Fact]
+    public async Task LoadAsync_ExternalOpenApiDocument_RegistersSchemasAndResolvedSubSchemas()
+    {
+        const string externalOpenApiDocument = """
+            {
+              "openapi": "3.1.0",
+              "info": {
+                "title": "External",
+                "version": "1.0.0"
+              },
+              "paths": {},
+              "components": {
+                "schemas": {
+                  "Shared": {
+                    "type": "string"
+                  },
+                  "Root": {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "$ref": "#/components/schemas/Shared"
+                      },
+                      "count": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            """;
+
+        var mainDocument = new ArazzoDocument
+        {
+            BaseUri = new Uri("https://example.com/root/arazzo.json"),
+            Workflows =
+            [
+                new ArazzoWorkflow
+                {
+                    WorkflowId = "wf",
+                    Inputs = CreateExternalSchemaReference("Root", "external-openapi.json", "#/components/schemas/Root")
+                }
+            ]
+        };
+        ((ArazzoInputReference)mainDocument.Workflows[0].Inputs!).Reference.EnsureHostDocumentIsSet(mainDocument);
+
+        var workspace = new ArazzoWorkspace(mainDocument.BaseUri);
+        mainDocument.Workspace = workspace;
+        var loader = new ArazzoWorkspaceLoader(
+            workspace,
+            new TestStreamLoader(new Dictionary<string, string>
+            {
+                ["https://example.com/root/external-openapi.json"] = externalOpenApiDocument
+            }),
+            new ArazzoReaderSettings());
+
+        await loader.LoadAsync(new BaseArazzoReference { ExternalResource = "/" }, mainDocument, TestContext.Current.CancellationToken);
+
+        var rootSchema = workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.json#/components/schemas/Root");
+        var sharedSchema = workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.json#/components/schemas/Shared");
+        var propertySchema = workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.json#/components/schemas/Root/properties/count");
+
+        Assert.NotNull(rootSchema);
+        Assert.NotNull(sharedSchema);
+        Assert.NotNull(propertySchema);
+        var propertyReference = Assert.IsType<ArazzoInputReference>(
+            workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.json#/components/schemas/Root/properties/value"));
+        Assert.Same(sharedSchema, propertyReference.Target);
+        Assert.Equal(JsonSchemaType.Integer, propertySchema?.Type);
+        Assert.Same(rootSchema, ((ArazzoInputReference)mainDocument.Workflows[0].Inputs!).Target);
+    }
+
+    [Fact]
+    public async Task LoadAsync_ExternalOpenApiYamlDocument_RegistersSchemasAndResolvedSubSchemas()
+    {
+        const string externalOpenApiDocument = """
+            openapi: 3.1.0
+            info:
+              title: External
+              version: 1.0.0
+            paths: {}
+            components:
+              schemas:
+                Shared:
+                  type: string
+                Root:
+                  type: object
+                  properties:
+                    value:
+                      $ref: '#/components/schemas/Shared'
+                    count:
+                      type: integer
+            """;
+
+        var mainDocument = new ArazzoDocument
+        {
+            BaseUri = new Uri("https://example.com/root/arazzo.json"),
+            Workflows =
+            [
+                new ArazzoWorkflow
+                {
+                    WorkflowId = "wf",
+                    Inputs = CreateExternalSchemaReference("Root", "external-openapi.yaml", "#/components/schemas/Root")
+                }
+            ]
+        };
+        ((ArazzoInputReference)mainDocument.Workflows[0].Inputs!).Reference.EnsureHostDocumentIsSet(mainDocument);
+
+        var workspace = new ArazzoWorkspace(mainDocument.BaseUri);
+        mainDocument.Workspace = workspace;
+        var loader = new ArazzoWorkspaceLoader(
+            workspace,
+            new TestStreamLoader(new Dictionary<string, string>
+            {
+                ["https://example.com/root/external-openapi.yaml"] = externalOpenApiDocument
+            }),
+            new ArazzoReaderSettings());
+
+        await loader.LoadAsync(new BaseArazzoReference { ExternalResource = "/" }, mainDocument, TestContext.Current.CancellationToken);
+
+        var rootSchema = workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.yaml#/components/schemas/Root");
+        var sharedSchema = workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.yaml#/components/schemas/Shared");
+        var propertySchema = workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.yaml#/components/schemas/Root/properties/count");
+
+        Assert.NotNull(rootSchema);
+        Assert.NotNull(sharedSchema);
+        Assert.NotNull(propertySchema);
+        var propertyReference = Assert.IsType<ArazzoInputReference>(
+            workspace.ResolveJsonSchemaReference("https://example.com/root/external-openapi.yaml#/components/schemas/Root/properties/value"));
+        Assert.Same(sharedSchema, propertyReference.Target);
+        Assert.Equal(JsonSchemaType.Integer, propertySchema?.Type);
+        Assert.Same(rootSchema, ((ArazzoInputReference)mainDocument.Workflows[0].Inputs!).Target);
+    }
+
     private static IArazzoInput CreateNestedExternalReferenceGraph(ArazzoDocument document)
     {
         return new ArazzoInput
