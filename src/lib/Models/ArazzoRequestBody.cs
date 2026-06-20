@@ -36,9 +36,6 @@ public class ArazzoRequestBody : IArazzoSerializable, IArazzoExtensible
     {
         ArgumentNullException.ThrowIfNull(writer);
 
-        ArgumentException.ThrowIfNullOrEmpty(ContentType);
-        ArgumentNullException.ThrowIfNull(Payload);
-
         writer.WriteStartObject();
         writer.WriteProperty(ArazzoConstants.ArazzoRequestBodyContentType, ContentType);
         writer.WriteOptionalObject(ArazzoConstants.ArazzoRequestBodyPayload, Payload, static (w, v) => w.WriteAny(v));

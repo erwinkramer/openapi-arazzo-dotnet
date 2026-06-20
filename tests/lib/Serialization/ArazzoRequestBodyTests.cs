@@ -88,4 +88,74 @@ public class ArazzoRequestBodyTests
         var extension = Assert.IsType<JsonNodeExtension>(requestBody.Extensions!["x-flag"]);
         Assert.True(JsonNode.DeepEquals(JsonNode.Parse("true"), extension.Node));
     }
+
+    [Fact]
+    public void SerializeAsV1_WithContentTypeOnly_ShouldWriteContentType()
+    {
+        var requestBody = new ArazzoRequestBody
+        {
+            ContentType = "application/json"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        requestBody.SerializeAsV1(writer);
+        var json = JsonNode.Parse(textWriter.ToString())!.AsObject();
+
+        Assert.Equal("application/json", json["contentType"]!.GetValue<string>());
+        Assert.False(json.ContainsKey("payload"));
+        Assert.False(json.ContainsKey("replacements"));
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithPayloadOnly_ShouldWritePayload()
+    {
+        var requestBody = new ArazzoRequestBody
+        {
+            Payload = JsonNode.Parse("{\"count\":10}")
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        requestBody.SerializeAsV1(writer);
+        var json = JsonNode.Parse(textWriter.ToString())!.AsObject();
+
+        Assert.False(json.ContainsKey("contentType"));
+        Assert.True(JsonNode.DeepEquals(JsonNode.Parse("{\"count\":10}"), json["payload"]));
+        Assert.False(json.ContainsKey("replacements"));
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithReplacementsOnly_ShouldWriteReplacements()
+    {
+        var requestBody = new ArazzoRequestBody
+        {
+            Replacements = new List<ArazzoPayloadReplacement>
+            {
+                new ArazzoPayloadReplacement { Target = "/count", Value = JsonValue.Create(11)! }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        requestBody.SerializeAsV1(writer);
+        var json = JsonNode.Parse(textWriter.ToString())!.AsObject();
+
+        Assert.False(json.ContainsKey("contentType"));
+        Assert.False(json.ContainsKey("payload"));
+        Assert.Single(json["replacements"]!.AsArray());
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithNoProperties_ShouldWriteEmptyObject()
+    {
+        var requestBody = new ArazzoRequestBody();
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        requestBody.SerializeAsV1(writer);
+        var json = JsonNode.Parse(textWriter.ToString())!.AsObject();
+
+        Assert.Empty(json);
+    }
 }
