@@ -184,6 +184,11 @@ public static class ArazzoConstants
     /// </summary>
     public const string ArazzoFailureActionRetryLimit = "retryLimit";
 
+    /// <summary>
+    /// The default number of retry attempts for a Failure Action object when retryLimit is omitted.
+    /// </summary>
+    public const ulong DefaultFailureActionRetryLimit = 1;
+
     // ArazzoStep
     /// <summary>
     /// The "description" field name in the Arazzo Step object.

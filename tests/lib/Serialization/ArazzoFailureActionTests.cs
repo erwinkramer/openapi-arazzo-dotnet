@@ -117,6 +117,74 @@ public class ArazzoFailureActionTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithRetryAndNoRetryLimit_ShouldOmitRetryLimit()
+    {
+        var failureAction = new ArazzoFailureAction
+        {
+            Name = "retryAction",
+            Type = ArazzoFailureType.Retry
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        failureAction.SerializeAsV1(writer);
+        var json = JsonNode.Parse(textWriter.ToString())!;
+
+        Assert.Null(json["retryLimit"]);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithRetryAfterOnNonRetryType_ShouldThrowArazzoSerializationException()
+    {
+        var failureAction = new ArazzoFailureAction
+        {
+            Name = "endAction",
+            Type = ArazzoFailureType.End,
+            RetryAfter = 1
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => failureAction.SerializeAsV1(writer));
+
+        Assert.Contains("retryAfter can only be specified when type is retry", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithRetryLimitOnNonRetryType_ShouldThrowArazzoSerializationException()
+    {
+        var failureAction = new ArazzoFailureAction
+        {
+            Name = "endAction",
+            Type = ArazzoFailureType.End,
+            RetryLimit = 1
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => failureAction.SerializeAsV1(writer));
+
+        Assert.Contains("retryLimit can only be specified when type is retry", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithNegativeRetryAfter_ShouldThrowArazzoSerializationException()
+    {
+        var failureAction = new ArazzoFailureAction
+        {
+            Name = "retryAction",
+            Type = ArazzoFailureType.Retry,
+            RetryAfter = -1
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => failureAction.SerializeAsV1(writer));
+
+        Assert.Contains("retryAfter must be a non-negative decimal", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void SerializeAsV1_ShouldThrowException_WhenNameIsNull()
     {
         var failureAction = new ArazzoFailureAction
@@ -219,9 +287,120 @@ public class ArazzoFailureActionTests
         Assert.Null(failureAction.WorkflowId);
         Assert.Null(failureAction.StepId);
         Assert.Null(failureAction.RetryAfter);
-        Assert.Null(failureAction.RetryLimit);
+        Assert.Equal(1ul, failureAction.RetryLimit);
         Assert.Null(failureAction.Criteria);
         Assert.Null(failureAction.Extensions);
+    }
+
+    [Fact]
+    public void Deserialize_WithRetryAndNoRetryLimit_ShouldUseDefaultRetryLimit()
+    {
+        var json = """
+        {
+            "name": "retryAction",
+            "type": "retry"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        var failureAction = Assert.IsType<ArazzoFailureAction>(ArazzoV1Deserializer.LoadFailureAction(jsonNode, parsingContext));
+
+        Assert.Equal(1ul, failureAction.RetryLimit);
+        Assert.Empty(parsingContext.Diagnostic.Errors);
+    }
+
+    [Fact]
+    public void Deserialize_WithRetryAfterOnNonRetryType_AddsDiagnosticError()
+    {
+        var json = """
+        {
+            "name": "endAction",
+            "type": "end",
+            "retryAfter": 1
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadFailureAction(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("retryAfter can only be specified when type is retry", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Deserialize_WithRetryLimitOnNonRetryType_AddsDiagnosticError()
+    {
+        var json = """
+        {
+            "name": "endAction",
+            "type": "end",
+            "retryLimit": 1
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadFailureAction(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("retryLimit can only be specified when type is retry", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Deserialize_WithNegativeRetryAfter_AddsDiagnosticError()
+    {
+        var json = """
+        {
+            "name": "retryAction",
+            "type": "retry",
+            "retryAfter": -1
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadFailureAction(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("retryAfter must be a non-negative decimal", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Deserialize_WithInvalidRetryAfter_AddsDiagnosticError()
+    {
+        var json = """
+        {
+            "name": "retryAction",
+            "type": "retry",
+            "retryAfter": "not-a-number"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadFailureAction(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("retryAfter must be a non-negative decimal", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("\"not-a-number\"")]
+    [InlineData("-1")]
+    [InlineData("1.5")]
+    public void Deserialize_WithInvalidRetryLimit_AddsDiagnosticError(string retryLimit)
+    {
+        var json = $$"""
+        {
+            "name": "retryAction",
+            "type": "retry",
+            "retryLimit": {{retryLimit}}
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadFailureAction(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("retryLimit must be a non-negative integer", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -245,7 +424,7 @@ public class ArazzoFailureActionTests
         Assert.Equal("errorWorkflow", failureAction.WorkflowId);
         Assert.Equal("errorHandler", failureAction.StepId);
         Assert.Null(failureAction.RetryAfter);
-        Assert.Null(failureAction.RetryLimit);
+        Assert.Equal(1ul, failureAction.RetryLimit);
         Assert.Null(failureAction.Criteria);
         Assert.Null(failureAction.Extensions);
     }

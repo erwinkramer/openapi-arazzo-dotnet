@@ -13,5 +13,5 @@ public interface IArazzoFailureAction : IArazzoResultAction<ArazzoFailureType>
     /// <summary>
     /// Gets or sets the retry limit.
     /// </summary>
-    ulong? RetryLimit { get; }
+    ulong RetryLimit { get; }
 }

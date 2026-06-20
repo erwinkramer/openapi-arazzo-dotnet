@@ -47,7 +47,7 @@ public class ArazzoFailureActionReference : BaseArazzoReferenceHolder<ArazzoFail
     public decimal? RetryAfter => Target?.RetryAfter;
 
     /// <inheritdoc />
-    public ulong? RetryLimit => Target?.RetryLimit;
+    public ulong RetryLimit => Target?.RetryLimit ?? ArazzoConstants.DefaultFailureActionRetryLimit;
 
     /// <inheritdoc />
     public override IArazzoFailureAction CopyReferenceAsTargetElementWithOverrides(IArazzoFailureAction source)

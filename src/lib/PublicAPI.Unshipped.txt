@@ -72,7 +72,7 @@ BinkyLabs.OpenApi.Arazzo.ArazzoFailureAction
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureAction.ArazzoFailureAction() -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureAction.RetryAfter.get -> decimal?
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureAction.RetryAfter.set -> void
-BinkyLabs.OpenApi.Arazzo.ArazzoFailureAction.RetryLimit.get -> ulong?
+BinkyLabs.OpenApi.Arazzo.ArazzoFailureAction.RetryLimit.get -> ulong
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureAction.RetryLimit.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureType
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureType.End = 0 -> BinkyLabs.OpenApi.Arazzo.ArazzoFailureType
@@ -492,7 +492,7 @@ BinkyLabs.OpenApi.Arazzo.IArazzoExtension
 BinkyLabs.OpenApi.Arazzo.IArazzoExtension.Write(Microsoft.OpenApi.IOpenApiWriter! writer, BinkyLabs.OpenApi.Arazzo.ArazzoSpecVersion specVersion) -> void
 BinkyLabs.OpenApi.Arazzo.IArazzoFailureAction
 BinkyLabs.OpenApi.Arazzo.IArazzoFailureAction.RetryAfter.get -> decimal?
-BinkyLabs.OpenApi.Arazzo.IArazzoFailureAction.RetryLimit.get -> ulong?
+BinkyLabs.OpenApi.Arazzo.IArazzoFailureAction.RetryLimit.get -> ulong
 BinkyLabs.OpenApi.Arazzo.IArazzoInput
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.AdditionalProperties.get -> BinkyLabs.OpenApi.Arazzo.IArazzoInput?
 BinkyLabs.OpenApi.Arazzo.IArazzoInput.AdditionalProperties.set -> void
@@ -649,7 +649,7 @@ BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.ArazzoFailureActionReferen
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.Criteria.get -> System.Collections.Generic.IList<BinkyLabs.OpenApi.Arazzo.ArazzoCriterion!>?
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.Name.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.RetryAfter.get -> decimal?
-BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.RetryLimit.get -> ulong?
+BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.RetryLimit.get -> ulong
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.StepId.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.Type.get -> BinkyLabs.OpenApi.Arazzo.ArazzoFailureType?
 BinkyLabs.OpenApi.Arazzo.ArazzoFailureActionReference.WorkflowId.get -> string?
@@ -733,6 +733,7 @@ const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoDocumentSourceDescriptions 
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoDocumentWorkflows = "workflows" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoFailureActionRetryAfter = "retryAfter" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoFailureActionRetryLimit = "retryLimit" -> string!
+const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.DefaultFailureActionRetryLimit = 1 -> ulong
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoInfoTitle = "title" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoInfoVersion = "version" -> string!
 const BinkyLabs.OpenApi.Arazzo.ArazzoConstants.ArazzoInfoSummary = "summary" -> string!

@@ -1,4 +1,9 @@
+using System.Globalization;
 using System.Text.Json.Nodes;
+
+using BinkyLabs.OpenApi.Arazzo.Validation;
+
+using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo.Reader.V1;
 
@@ -19,16 +24,26 @@ internal static partial class ArazzoV1Deserializer
         { ArazzoConstants.ArazzoResultActionStepId, static (o, v, c) => o.StepId = v.GetScalarValue() },
         { ArazzoConstants.ArazzoFailureActionRetryAfter, static (o, v, c) =>
         {
-            if (decimal.TryParse(v.GetScalarValue(), out var retryAfter))
+            var value = v.GetScalarValue();
+            if (decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var retryAfter))
             {
                 o.RetryAfter = retryAfter;
+            }
+            else
+            {
+                c.Diagnostic.Errors.Add(new OpenApiError($"{c.GetLocation()}/{ArazzoConstants.ArazzoFailureActionRetryAfter}", $"{nameof(ArazzoFailureAction)} retryAfter must be a non-negative decimal. Invalid value: '{value}'."));
             }
         } },
         { ArazzoConstants.ArazzoFailureActionRetryLimit, static (o, v, c) =>
         {
-            if (ulong.TryParse(v.GetScalarValue(), out var retryLimit))
+            var value = v.GetScalarValue();
+            if (ulong.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out var retryLimit))
             {
                 o.RetryLimit = retryLimit;
+            }
+            else
+            {
+                c.Diagnostic.Errors.Add(new OpenApiError($"{c.GetLocation()}/{ArazzoConstants.ArazzoFailureActionRetryLimit}", $"{nameof(ArazzoFailureAction)} retryLimit must be a non-negative integer. Invalid value: '{value}'."));
             }
         } },
         { ArazzoConstants.ArazzoResultActionCriteria, static (o, v, c) => o.Criteria = v.CreateList(LoadCriterion, c) }
@@ -59,6 +74,7 @@ internal static partial class ArazzoV1Deserializer
         var mapNode = node.CheckMapNode("FailureAction", context);
         var failureAction = new ArazzoFailureAction();
         mapNode.ParseMap(failureAction, FailureActionFixedFields, FailureActionPatternFields, context);
+        ArazzoFailureActionValidator.ValidateDeserialization(failureAction, context);
 
         return failureAction;
     }
