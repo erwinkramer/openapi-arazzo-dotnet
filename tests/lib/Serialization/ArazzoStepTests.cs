@@ -221,6 +221,23 @@ public class ArazzoStepTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithMultipleOperationReferences_ShouldThrowArazzoSerializationException()
+    {
+        var step = new ArazzoStep
+        {
+            StepId = "conflictingStep",
+            OperationId = "getUser",
+            OperationPath = "$sourceDescriptions.source1.url#/paths/~1users/get"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => step.SerializeAsV1(writer));
+
+        Assert.Contains("can define only one of operationId, operationPath, or workflowId", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Deserialize_WithInvalidOutputKey_AddsDiagnosticError()
     {
         var json = """

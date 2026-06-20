@@ -16,7 +16,6 @@ public class ArazzoSuccessActionTests
         {
             Name = "successAction1",
             Type = ArazzoSuccessType.Goto,
-            WorkflowId = "workflow123",
             StepId = "step456",
             Criteria = new List<ArazzoCriterion>
             {
@@ -39,7 +38,6 @@ public class ArazzoSuccessActionTests
         {
             "name": "successAction1",
             "type": "goto",
-            "workflowId": "workflow123",
             "stepId": "step456",
             "criteria": [
                 {
@@ -97,6 +95,24 @@ public class ArazzoSuccessActionTests
         var writer = new OpenApiJsonWriter(textWriter);
 
         Assert.Throws<ArgumentNullException>(() => successAction.SerializeAsV1(writer));
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithWorkflowIdAndStepId_ShouldThrowArazzoSerializationException()
+    {
+        var successAction = new ArazzoSuccessAction
+        {
+            Name = "gotoAction",
+            Type = ArazzoSuccessType.Goto,
+            WorkflowId = "workflow1",
+            StepId = "step1"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => successAction.SerializeAsV1(writer));
+
+        Assert.Contains("can define only one of workflowId or stepId", exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]

@@ -87,6 +87,9 @@ public class ArazzoDocument : IArazzoSerializable, IArazzoExtensible
             throw new ArazzoSerializationException("Workflows is required and must contain at least one element for ArazzoDocument serialization.");
         }
 
+        ValidateUniqueSourceDescriptionNames();
+        ValidateUniqueWorkflowIds();
+
         writer.WriteStartObject();
         writer.WriteRequiredProperty(ArazzoConstants.ArazzoDocumentArazzo, "1.0.1");
         writer.WriteRequiredObject(ArazzoConstants.ArazzoDocumentInfo, Info, (w, obj) => obj.SerializeAsV1(w));
@@ -99,6 +102,30 @@ public class ArazzoDocument : IArazzoSerializable, IArazzoExtensible
 
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();
+    }
+
+    private void ValidateUniqueSourceDescriptionNames()
+    {
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var sourceDescription in SourceDescriptions ?? [])
+        {
+            if (!string.IsNullOrEmpty(sourceDescription.Name) && !names.Add(sourceDescription.Name))
+            {
+                throw new ArazzoSerializationException($"SourceDescriptions contains duplicate name '{sourceDescription.Name}'.");
+            }
+        }
+    }
+
+    private void ValidateUniqueWorkflowIds()
+    {
+        var workflowIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var workflow in Workflows ?? [])
+        {
+            if (!string.IsNullOrEmpty(workflow.WorkflowId) && !workflowIds.Add(workflow.WorkflowId))
+            {
+                throw new ArazzoSerializationException($"Workflows contains duplicate workflowId '{workflow.WorkflowId}'.");
+            }
+        }
     }
 
     /// <summary>

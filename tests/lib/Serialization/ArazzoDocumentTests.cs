@@ -395,6 +395,66 @@ public class ArazzoDocumentTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithDuplicateSourceDescriptionNames_ShouldThrowArazzoSerializationException()
+    {
+        var document = new ArazzoDocument
+        {
+            Info = new ArazzoInfo { Title = "Test", Version = "1.0.0" },
+            SourceDescriptions = new List<ArazzoSourceDescription>
+            {
+                new ArazzoSourceDescription { Name = "source1", Url = new Uri("https://example.com/api1") },
+                new ArazzoSourceDescription { Name = "source1", Url = new Uri("https://example.com/api2") }
+            },
+            Workflows = new List<ArazzoWorkflow>
+            {
+                new ArazzoWorkflow
+                {
+                    WorkflowId = "workflow1",
+                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step1" } }
+                }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => document.SerializeAsV1(writer));
+
+        Assert.Contains("duplicate name 'source1'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithDuplicateWorkflowIds_ShouldThrowArazzoSerializationException()
+    {
+        var document = new ArazzoDocument
+        {
+            Info = new ArazzoInfo { Title = "Test", Version = "1.0.0" },
+            SourceDescriptions = new List<ArazzoSourceDescription>
+            {
+                new ArazzoSourceDescription { Name = "source1", Url = new Uri("https://example.com/api") }
+            },
+            Workflows = new List<ArazzoWorkflow>
+            {
+                new ArazzoWorkflow
+                {
+                    WorkflowId = "workflow1",
+                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step1" } }
+                },
+                new ArazzoWorkflow
+                {
+                    WorkflowId = "workflow1",
+                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step2" } }
+                }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => document.SerializeAsV1(writer));
+
+        Assert.Contains("duplicate workflowId 'workflow1'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task LoadFromStreamAsync_ShouldParseDocument()
     {
         const string json =

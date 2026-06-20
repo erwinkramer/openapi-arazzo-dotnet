@@ -79,6 +79,7 @@ public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
         ArgumentNullException.ThrowIfNull(writer);
 
         ArgumentException.ThrowIfNullOrEmpty(StepId);
+        ValidateOperationReferenceFields();
         ArazzoKeyValidator.ValidateSerializationKeys(Outputs?.Keys, $"{nameof(ArazzoStep)}.{nameof(Outputs)}");
         ArazzoRuntimeExpressionValidator.ValidateSerializationExpressions(Outputs, $"{nameof(ArazzoStep)}.{nameof(Outputs)}");
 
@@ -126,5 +127,29 @@ public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
 
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();
+    }
+
+    private void ValidateOperationReferenceFields()
+    {
+        var operationReferenceCount = 0;
+        if (!string.IsNullOrEmpty(OperationId))
+        {
+            operationReferenceCount++;
+        }
+
+        if (!string.IsNullOrEmpty(OperationPath))
+        {
+            operationReferenceCount++;
+        }
+
+        if (!string.IsNullOrEmpty(WorkflowId))
+        {
+            operationReferenceCount++;
+        }
+
+        if (operationReferenceCount > 1)
+        {
+            throw new ArazzoSerializationException($"{nameof(ArazzoStep)} '{StepId}' can define only one of operationId, operationPath, or workflowId.");
+        }
     }
 }

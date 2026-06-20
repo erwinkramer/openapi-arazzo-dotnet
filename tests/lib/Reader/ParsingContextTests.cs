@@ -279,6 +279,23 @@ public class ParsingContextTests
         Assert.Contains(ctx.Diagnostic.Errors, e => e.Message.Contains(expectedMessage, StringComparison.Ordinal));
     }
 
+    [Theory]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api1" }, { "name": "source1", "url": "https://example.com/api2" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1" }] }] }""", "duplicate name 'source1'")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1" }] }, { "workflowId": "wf", "steps": [{ "stepId": "step2" }] }] }""", "duplicate workflowId 'wf'")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1" }, { "stepId": "step1" }] }] }""", "duplicate stepId 'step1'")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1", "operationId": "getUser", "operationPath": "$sourceDescriptions.source1.url#/paths/~1users/get" }] }] }""", "can define only one of operationId, operationPath, or workflowId")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1" }], "successActions": [{ "name": "goto", "type": "goto", "workflowId": "next", "stepId": "step2" }] }] }""", "can define only one of workflowId or stepId")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1", "onFailure": [{ "name": "retry", "type": "retry", "workflowId": "refresh", "stepId": "retryStep" }] }] }] }""", "can define only one of workflowId or stepId")]
+    public void Parse_UniquenessAndMutualExclusionViolations_AddsDiagnosticError(string json, string expectedMessage)
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse(json)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.Contains(ctx.Diagnostic.Errors, e => e.Message.Contains(expectedMessage, StringComparison.Ordinal));
+    }
+
     [Fact]
     public void Parse_MissingVersion_ThrowsOpenApiException()
     {

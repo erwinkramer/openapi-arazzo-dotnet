@@ -39,6 +39,10 @@ public abstract class ArazzoResultAction<T> : IArazzoResultAction<T>, IArazzoExt
         {
             throw new ArgumentNullException(nameof(Type));
         }
+        if (!string.IsNullOrEmpty(WorkflowId) && !string.IsNullOrEmpty(StepId))
+        {
+            throw new ArazzoSerializationException($"{GetType().Name} '{Name}' can define only one of workflowId or stepId.");
+        }
 
         writer.WriteRequiredProperty(ArazzoConstants.ArazzoResultActionName, Name);
         writer.WriteRequiredProperty(ArazzoConstants.ArazzoResultActionType, Type.Value.GetDisplayName());

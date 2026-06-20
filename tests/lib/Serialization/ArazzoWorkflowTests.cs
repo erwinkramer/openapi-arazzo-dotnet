@@ -303,6 +303,26 @@ public class ArazzoWorkflowTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithDuplicateStepIds_ShouldThrowArazzoSerializationException()
+    {
+        var workflow = new ArazzoWorkflow
+        {
+            WorkflowId = "duplicateStepWorkflow",
+            Steps = new List<ArazzoStep>
+            {
+                new ArazzoStep { StepId = "step1" },
+                new ArazzoStep { StepId = "step1" }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => workflow.SerializeAsV1(writer));
+
+        Assert.Contains("duplicate stepId 'step1'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Deserialize_WithInvalidOutputKey_AddsDiagnosticError()
     {
         var json = """

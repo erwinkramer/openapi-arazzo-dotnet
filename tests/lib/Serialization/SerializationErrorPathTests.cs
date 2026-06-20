@@ -101,8 +101,6 @@ public class SerializationErrorPathTests
             StepId = "s1",
             Description = "d",
             OperationId = "op",
-            OperationPath = "$.op",
-            WorkflowId = "wf",
             Parameters = [new ArazzoParameter { Name = "p", In = ParameterLocation.Query, Value = JsonValue.Create(1)! }],
             RequestBody = new ArazzoRequestBody { ContentType = "application/json", Payload = JsonValue.Create("{}")! },
             SuccessCriteria = [new ArazzoCriterion { Condition = "true" }],
@@ -116,8 +114,6 @@ public class SerializationErrorPathTests
         Assert.Equal("s1", json["stepId"]!.GetValue<string>());
         Assert.Equal("d", json["description"]!.GetValue<string>());
         Assert.Equal("op", json["operationId"]!.GetValue<string>());
-        Assert.Equal("$.op", json["operationPath"]!.GetValue<string>());
-        Assert.Equal("wf", json["workflowId"]!.GetValue<string>());
     }
 
     [Fact]

@@ -269,6 +269,10 @@ public class ParsingContext
             {
                 Diagnostic.Errors.Add(new OpenApiError("", $"SourceDescriptions is a REQUIRED field and MUST contain at least one entry at {GetLocation()}"));
             }
+            else
+            {
+                ValidateUniqueSourceDescriptionNames(doc.SourceDescriptions);
+            }
 
             if (doc.Workflows is not { Count: > 0 })
             {
@@ -276,7 +280,11 @@ public class ParsingContext
             }
             else
             {
+                ValidateUniqueWorkflowIds(doc.Workflows);
                 ValidateWorkflowRequiredFields(doc.Workflows);
+                ValidateWorkflowStepIds(doc.Workflows);
+                ValidateStepOperationReferenceFields(doc.Workflows);
+                ValidateResultActionReferenceFields(doc.Workflows);
             }
 
             ValidateWorkflowParameters(doc);
@@ -305,6 +313,96 @@ public class ParsingContext
                 Diagnostic.Errors.Add(new OpenApiError("", $"Workflow '{workflow.WorkflowId}' steps is a REQUIRED field and MUST contain at least one entry."));
             }
         }
+    }
+
+    private void ValidateUniqueSourceDescriptionNames(IEnumerable<ArazzoSourceDescription> sourceDescriptions)
+    {
+        var names = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var sourceDescription in sourceDescriptions)
+        {
+            if (!string.IsNullOrEmpty(sourceDescription.Name) && !names.Add(sourceDescription.Name))
+            {
+                Diagnostic.Errors.Add(new OpenApiError("", $"SourceDescriptions contains duplicate name '{sourceDescription.Name}'."));
+            }
+        }
+    }
+
+    private void ValidateUniqueWorkflowIds(IEnumerable<ArazzoWorkflow> workflows)
+    {
+        var workflowIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var workflow in workflows)
+        {
+            if (!string.IsNullOrEmpty(workflow.WorkflowId) && !workflowIds.Add(workflow.WorkflowId))
+            {
+                Diagnostic.Errors.Add(new OpenApiError("", $"Workflows contains duplicate workflowId '{workflow.WorkflowId}'."));
+            }
+        }
+    }
+
+    private void ValidateWorkflowStepIds(IEnumerable<ArazzoWorkflow> workflows)
+    {
+        foreach (var workflow in workflows)
+        {
+            var stepIds = new HashSet<string>(StringComparer.Ordinal);
+            foreach (var step in workflow.Steps ?? [])
+            {
+                if (!string.IsNullOrEmpty(step.StepId) && !stepIds.Add(step.StepId))
+                {
+                    Diagnostic.Errors.Add(new OpenApiError("", $"Workflow '{workflow.WorkflowId}' contains duplicate stepId '{step.StepId}'."));
+                }
+            }
+        }
+    }
+
+    private void ValidateStepOperationReferenceFields(IEnumerable<ArazzoWorkflow> workflows)
+    {
+        foreach (var workflow in workflows)
+        {
+            foreach (var step in workflow.Steps ?? [])
+            {
+                var referenceCount = CountNonEmpty(step.OperationId, step.OperationPath, step.WorkflowId);
+                if (referenceCount > 1)
+                {
+                    Diagnostic.Errors.Add(new OpenApiError("", $"Workflow '{workflow.WorkflowId}' step '{step.StepId}' can define only one of operationId, operationPath, or workflowId."));
+                }
+            }
+        }
+    }
+
+    private void ValidateResultActionReferenceFields(IEnumerable<ArazzoWorkflow> workflows)
+    {
+        foreach (var workflow in workflows)
+        {
+            ValidateResultActionReferenceFields(workflow.SuccessActions, $"Workflow '{workflow.WorkflowId}' success action");
+            ValidateResultActionReferenceFields(workflow.FailureActions, $"Workflow '{workflow.WorkflowId}' failure action");
+
+            foreach (var step in workflow.Steps ?? [])
+            {
+                ValidateResultActionReferenceFields(step.OnSuccess, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}' success action");
+                ValidateResultActionReferenceFields(step.OnFailure, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}' failure action");
+            }
+        }
+    }
+
+    private void ValidateResultActionReferenceFields<T>(IEnumerable<T>? actions, string elementName) where T : IArazzoResultAction
+    {
+        if (actions is null)
+        {
+            return;
+        }
+
+        foreach (var action in actions)
+        {
+            if (!string.IsNullOrEmpty(action.WorkflowId) && !string.IsNullOrEmpty(action.StepId))
+            {
+                Diagnostic.Errors.Add(new OpenApiError("", $"{elementName} '{action.Name}' can define only one of workflowId or stepId."));
+            }
+        }
+    }
+
+    private static int CountNonEmpty(params string?[] values)
+    {
+        return values.Count(static value => !string.IsNullOrEmpty(value));
     }
 
     private void ValidateWorkflowParameters(ArazzoDocument doc)

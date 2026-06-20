@@ -17,7 +17,6 @@ public class ArazzoFailureActionTests
             Name = "failureAction1",
             Type = ArazzoFailureType.Retry,
             WorkflowId = "workflow123",
-            StepId = "step456",
             RetryAfter = 5.5m,
             RetryLimit = 3ul,
             Criteria = new List<ArazzoCriterion>
@@ -42,7 +41,6 @@ public class ArazzoFailureActionTests
             "name": "failureAction1",
             "type": "retry",
             "workflowId": "workflow123",
-            "stepId": "step456",
             "retryAfter": 5.5,
             "retryLimit": 3,
             "criteria": [
@@ -97,7 +95,6 @@ public class ArazzoFailureActionTests
         {
             Name = "gotoAction",
             Type = ArazzoFailureType.Goto,
-            WorkflowId = "workflow456",
             StepId = "step789"
         };
         using var textWriter = new StringWriter();
@@ -108,7 +105,6 @@ public class ArazzoFailureActionTests
         {
             "name": "gotoAction",
             "type": "goto",
-            "workflowId": "workflow456",
             "stepId": "step789"
         }
         """;
@@ -131,6 +127,24 @@ public class ArazzoFailureActionTests
         var writer = new OpenApiJsonWriter(textWriter);
 
         Assert.Throws<ArgumentNullException>(() => failureAction.SerializeAsV1(writer));
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithWorkflowIdAndStepId_ShouldThrowArazzoSerializationException()
+    {
+        var failureAction = new ArazzoFailureAction
+        {
+            Name = "retryAction",
+            Type = ArazzoFailureType.Retry,
+            WorkflowId = "workflow1",
+            StepId = "step1"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => failureAction.SerializeAsV1(writer));
+
+        Assert.Contains("can define only one of workflowId or stepId", exception.Message, StringComparison.Ordinal);
     }
 
     [Fact]
