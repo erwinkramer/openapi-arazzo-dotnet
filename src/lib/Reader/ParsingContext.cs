@@ -4,6 +4,7 @@
 using System.Text.Json.Nodes;
 
 using BinkyLabs.OpenApi.Arazzo.Reader.V1;
+using BinkyLabs.OpenApi.Arazzo.Validation;
 
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
@@ -418,25 +419,23 @@ public class ParsingContext
 
         foreach (var workflow in doc.Workflows)
         {
-            if (workflow.Parameters is null || workflow.Parameters.Count < 2)
-            {
-                continue;
-            }
+            ValidateParameterList(workflow.Parameters, $"Workflow '{workflow.WorkflowId}'", workflow.Steps?.Any(IsOperationTargetedStep) == true);
 
-            var parameterNames = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var parameter in workflow.Parameters)
+            foreach (var step in workflow.Steps ?? [])
             {
-                var parameterName = parameter.Name;
-                if (string.IsNullOrEmpty(parameterName))
-                {
-                    continue;
-                }
-
-                if (!parameterNames.Add(parameterName))
-                {
-                    Diagnostic.Errors.Add(new OpenApiError(string.Empty, $"Workflow '{workflow.WorkflowId}' contains duplicate parameter name '{parameterName}'."));
-                }
+                ValidateParameterList(step.Parameters, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'", IsOperationTargetedStep(step));
             }
         }
     }
+
+    private void ValidateParameterList(IEnumerable<IArazzoParameter>? parameters, string elementName, bool requiresLocation)
+    {
+        foreach (var error in ArazzoParameterValidator.Validate(parameters, elementName, requiresLocation, "when applied to an operation step"))
+        {
+            Diagnostic.Errors.Add(new OpenApiError(string.Empty, error));
+        }
+    }
+
+    private static bool IsOperationTargetedStep(ArazzoStep step) =>
+        !string.IsNullOrEmpty(step.OperationId) || !string.IsNullOrEmpty(step.OperationPath);
 }

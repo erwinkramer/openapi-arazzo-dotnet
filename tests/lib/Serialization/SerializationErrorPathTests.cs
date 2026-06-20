@@ -30,11 +30,15 @@ public class SerializationErrorPathTests
     }
 
     [Fact]
-    public void Parameter_SerializeAsV1_NullIn_Throws()
+    public void Parameter_SerializeAsV1_NullIn_OmitsIn()
     {
         var p = new ArazzoParameter { Name = "n", Value = JsonValue.Create(1)! };
-        var w = MakeWriter(out _);
-        Assert.Throws<ArgumentNullException>(() => p.SerializeAsV1(w));
+        var w = MakeWriter(out var sw);
+
+        p.SerializeAsV1(w);
+
+        var json = JsonNode.Parse(sw.ToString())!.AsObject();
+        Assert.False(json.ContainsKey("in"));
     }
 
     [Fact]

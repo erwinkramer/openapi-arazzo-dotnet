@@ -80,6 +80,7 @@ public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
 
         ArgumentException.ThrowIfNullOrEmpty(StepId);
         ValidateOperationReferenceFields();
+        ValidateParameters();
         ArazzoKeyValidator.ValidateSerializationKeys(Outputs?.Keys, $"{nameof(ArazzoStep)}.{nameof(Outputs)}");
         ArazzoRuntimeExpressionValidator.ValidateSerializationExpressions(Outputs, $"{nameof(ArazzoStep)}.{nameof(Outputs)}");
 
@@ -152,4 +153,16 @@ public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
             throw new ArazzoSerializationException($"{nameof(ArazzoStep)} '{StepId}' can define only one of operationId, operationPath, or workflowId.");
         }
     }
+
+    private void ValidateParameters()
+    {
+        ArazzoParameterValidator.ValidateSerializationParameters(
+            Parameters,
+            $"{nameof(ArazzoStep)} '{StepId}'",
+            IsOperationTargeted(),
+            "when the step targets an operation");
+    }
+
+    private bool IsOperationTargeted() =>
+        !string.IsNullOrEmpty(OperationId) || !string.IsNullOrEmpty(OperationPath);
 }

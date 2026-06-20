@@ -79,6 +79,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
             throw new ArazzoSerializationException("Steps is required and must contain at least one element for ArazzoWorkflow serialization.");
         }
         ValidateUniqueStepIds();
+        ValidateWorkflowParameters();
 
         writer.WriteStartObject();
         writer.WriteProperty(ArazzoConstants.ArazzoWorkflowWorkflowId, WorkflowId);
@@ -122,5 +123,14 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
                 throw new ArazzoSerializationException($"Workflow '{WorkflowId}' contains duplicate stepId '{step.StepId}'.");
             }
         }
+    }
+
+    private void ValidateWorkflowParameters()
+    {
+        ArazzoParameterValidator.ValidateSerializationParameters(
+            Parameters,
+            $"{nameof(ArazzoWorkflow)} '{WorkflowId}'",
+            Steps?.Any(static step => !string.IsNullOrEmpty(step.OperationId) || !string.IsNullOrEmpty(step.OperationPath)) == true,
+            "when applied to an operation step");
     }
 }

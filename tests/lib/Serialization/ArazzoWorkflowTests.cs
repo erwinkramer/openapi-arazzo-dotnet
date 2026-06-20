@@ -323,6 +323,102 @@ public class ArazzoWorkflowTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithDuplicateParameterNameAndIn_ShouldThrowArazzoSerializationException()
+    {
+        var workflow = new ArazzoWorkflow
+        {
+            WorkflowId = "duplicateParameterWorkflow",
+            Steps = new List<ArazzoStep>
+            {
+                new ArazzoStep { StepId = "step1", WorkflowId = "childWorkflow" }
+            },
+            Parameters = new List<IArazzoParameter>
+            {
+                new ArazzoParameter { Name = "input", Value = "1" },
+                new ArazzoParameter { Name = "input", Value = "2" }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => workflow.SerializeAsV1(writer));
+
+        Assert.Contains("duplicate parameter 'input' in '<unspecified>'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithSameParameterNameDifferentIn_ShouldSerialize()
+    {
+        var workflow = new ArazzoWorkflow
+        {
+            WorkflowId = "parameterWorkflow",
+            Steps = new List<ArazzoStep>
+            {
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" }
+            },
+            Parameters = new List<IArazzoParameter>
+            {
+                new ArazzoParameter { Name = "id", In = ParameterLocation.Query, Value = "1" },
+                new ArazzoParameter { Name = "id", In = ParameterLocation.Header, Value = "2" }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        workflow.SerializeAsV1(writer);
+        var json = JsonNode.Parse(textWriter.ToString())!;
+
+        Assert.Equal(2, json["parameters"]!.AsArray().Count);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithOperationStepAndParameterWithoutIn_ShouldThrowArazzoSerializationException()
+    {
+        var workflow = new ArazzoWorkflow
+        {
+            WorkflowId = "operationParameterWorkflow",
+            Steps = new List<ArazzoStep>
+            {
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" }
+            },
+            Parameters = new List<IArazzoParameter>
+            {
+                new ArazzoParameter { Name = "id", Value = "1" }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => workflow.SerializeAsV1(writer));
+
+        Assert.Contains("must specify 'in' when applied to an operation step", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithWorkflowStepAndParameterWithoutIn_ShouldSerialize()
+    {
+        var workflow = new ArazzoWorkflow
+        {
+            WorkflowId = "workflowParameterWorkflow",
+            Steps = new List<ArazzoStep>
+            {
+                new ArazzoStep { StepId = "step1", WorkflowId = "childWorkflow" }
+            },
+            Parameters = new List<IArazzoParameter>
+            {
+                new ArazzoParameter { Name = "input", Value = "1" }
+            }
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        workflow.SerializeAsV1(writer);
+        var parameter = JsonNode.Parse(textWriter.ToString())!["parameters"]![0]!.AsObject();
+
+        Assert.False(parameter.ContainsKey("in"));
+    }
+
+    [Fact]
     public void Deserialize_WithInvalidOutputKey_AddsDiagnosticError()
     {
         var json = """

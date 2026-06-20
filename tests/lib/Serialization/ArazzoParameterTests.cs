@@ -69,6 +69,32 @@ public class ArazzoParameterTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithoutIn_ShouldOmitIn()
+    {
+        var parameter = new ArazzoParameter
+        {
+            Name = "input",
+            Value = "42"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var expectedJson =
+        """
+        {
+            "name": "input",
+            "value": "42"
+        }
+        """;
+
+        parameter.SerializeAsV1(writer);
+        var jsonResultObject = JsonNode.Parse(textWriter.ToString());
+        var expectedJsonObject = JsonNode.Parse(expectedJson);
+
+        Assert.True(JsonNode.DeepEquals(jsonResultObject, expectedJsonObject), "Serialized JSON does not match expected output.");
+    }
+
+    [Fact]
     public void SerializeAsV1_WithReference_WritesReferenceAndValueOverride()
     {
         var parameter = new ArazzoParameterReference("shared")

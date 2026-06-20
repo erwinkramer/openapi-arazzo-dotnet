@@ -31,16 +31,14 @@ public class ArazzoParameter : IArazzoParameter, IArazzoExtensible
         ArgumentNullException.ThrowIfNull(writer);
 
         ArgumentException.ThrowIfNullOrEmpty(Name);
-        if (!In.HasValue)
-        {
-            throw new ArgumentNullException(nameof(In));
-        }
-
         ArgumentNullException.ThrowIfNull(Value);
 
         writer.WriteStartObject();
         writer.WriteRequiredProperty(ArazzoConstants.ArazzoParameterName, Name);
-        writer.WriteRequiredProperty(ArazzoConstants.ArazzoParameterIn, In.Value.GetDisplayName());
+        if (In.HasValue)
+        {
+            writer.WriteRequiredProperty(ArazzoConstants.ArazzoParameterIn, In.Value.GetDisplayName());
+        }
         writer.WriteOptionalObject(ArazzoConstants.ArazzoParameterValue, Value, static (w, v) => w.WriteAny(v));
         writer.WriteArazzoExtensions(Extensions, ArazzoSpecVersion.Arazzo1_0);
         writer.WriteEndObject();

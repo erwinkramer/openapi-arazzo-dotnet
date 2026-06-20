@@ -223,7 +223,7 @@ public class ParsingContextTests
     }
 
     [Fact]
-    public void Parse_DuplicateWorkflowParameterNames_AddsDiagnosticError()
+    public void Parse_WorkflowParametersWithSameNameDifferentIn_DoesNotAddDiagnosticError()
     {
         var ctx = CreateContext();
         var jsonNode = JsonNode.Parse("""
@@ -257,7 +257,61 @@ public class ParsingContextTests
         var document = ctx.Parse(jsonNode, new Uri("https://example.com/"));
 
         Assert.NotNull(document);
-        Assert.Contains(ctx.Diagnostic.Errors, e => e.Message.Contains("duplicate parameter name 'token'", StringComparison.Ordinal));
+        Assert.DoesNotContain(ctx.Diagnostic.Errors, e => e.Message.Contains("duplicate parameter", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1", "workflowId": "child" }], "parameters": [{ "name": "input", "value": "one" }, { "name": "input", "value": "two" }] }] }""", "duplicate parameter 'input' in '<unspecified>'")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1", "operationId": "getUser" }], "parameters": [{ "name": "id", "value": "one" }] }] }""", "parameter 'id' must specify 'in' when applied to an operation step")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1", "workflowId": "child", "parameters": [{ "name": "input", "value": "one" }, { "name": "input", "value": "two" }] }] }] }""", "duplicate parameter 'input' in '<unspecified>'")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "steps": [{ "stepId": "step1", "operationId": "getUser", "parameters": [{ "name": "id", "value": "one" }] }] }] }""", "parameter 'id' must specify 'in' when applied to an operation step")]
+    public void Parse_ParameterValidationViolations_AddsDiagnosticError(string json, string expectedMessage)
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse(json)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.Contains(ctx.Diagnostic.Errors, e => e.Message.Contains(expectedMessage, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Parse_WorkflowTargetParametersWithoutIn_DoesNotAddDiagnosticError()
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse("""
+            {
+              "arazzo": "1.0.0",
+              "info": { "title": "T", "version": "1" },
+              "sourceDescriptions": [
+                {
+                  "name": "source1",
+                  "url": "https://example.com/api"
+                }
+              ],
+              "workflows": [
+                {
+                  "workflowId": "wf",
+                  "steps": [
+                    {
+                      "stepId": "step1",
+                      "workflowId": "child",
+                      "parameters": [
+                        { "name": "input", "value": "step" }
+                      ]
+                    }
+                  ],
+                  "parameters": [
+                    { "name": "workflowInput", "value": "workflow" }
+                  ]
+                }
+              ]
+            }
+            """)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.DoesNotContain(ctx.Diagnostic.Errors, e => e.Message.Contains("parameter", StringComparison.OrdinalIgnoreCase));
     }
 
     [Theory]
