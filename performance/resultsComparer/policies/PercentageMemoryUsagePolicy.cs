@@ -100,6 +100,14 @@ internal abstract class PercentageMemoryUsagePolicy(float tolerancePercentagePoi
 
     private static double GetRatio(BenchmarkMemory x, BenchmarkMemory y)
     {
-        return (double)(y.AllocatedBytes!.Value - x.AllocatedBytes!.Value) / x.AllocatedBytes.Value;
+        var xAllocatedBytes = x.AllocatedBytes;
+        var yAllocatedBytes = y.AllocatedBytes;
+
+        if (xAllocatedBytes is null || yAllocatedBytes is null)
+        {
+            throw new ArgumentException("AllocatedBytes cannot be null.");
+        }
+
+        return (double)(yAllocatedBytes.Value - xAllocatedBytes.Value) / xAllocatedBytes.Value;
     }
 }
