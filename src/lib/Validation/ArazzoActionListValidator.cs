@@ -37,7 +37,7 @@ internal static class ArazzoActionListValidator
         var actionKeys = new HashSet<string>(StringComparer.Ordinal);
         return actions
                 .Select(GetActionKey)
-                .Where(key => !string.IsNullOrEmpty(key) && !actionKeys.Contains(key!))
+                .Where(key => !string.IsNullOrEmpty(key) && !actionKeys.Add(key!))
                 .Select(x => $"{elementName} contains duplicate action '{x}'.");
     }
 
