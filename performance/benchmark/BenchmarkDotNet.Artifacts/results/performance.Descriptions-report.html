@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>performance.Descriptions-20260622-211830</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, Windows 11 (10.0.26200.8655/25H2/2025Update/HudsonValley2)
+Snapdragon X 12-core X1E80100 3.40 GHz (Max: 3.42GHz), 1 CPU, 12 logical and 12 physical cores
+.NET SDK 10.0.301
+  [Host]   : .NET 8.0.28 (8.0.28, 8.0.2826.26413), Arm64 RyuJIT armv8.0-a
+  ShortRun : .NET 8.0.28 (8.0.28, 8.0.2826.26413), Arm64 RyuJIT armv8.0-a
+</code></pre>
+<pre><code>Job=ShortRun  IterationCount=3  LaunchCount=1  
+WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method  </th><th>Mean</th><th>Error</th><th>StdDev</th><th>Gen0</th><th>Allocated</th>
+</tr>
+</thead><tbody><tr><td>BnplYaml</td><td>NA</td><td>NA</td><td>NA</td><td>NA</td><td>NA</td>
+</tr><tr><td>FormalBnplYaml</td><td>335.51 &mu;s</td><td>53.773 &mu;s</td><td>2.947 &mu;s</td><td>92.2852</td><td>378.23 KB</td>
+</tr><tr><td>FapiParYaml</td><td>257.98 &mu;s</td><td>28.064 &mu;s</td><td>1.538 &mu;s</td><td>85.9375</td><td>351.38 KB</td>
+</tr><tr><td>MinimalJson</td><td>11.23 &mu;s</td><td>3.051 &mu;s</td><td>0.167 &mu;s</td><td>5.2338</td><td>21.38 KB</td>
+</tr></tbody></table>
+</body>
+</html>
