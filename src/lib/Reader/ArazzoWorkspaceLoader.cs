@@ -32,6 +32,8 @@ internal sealed class ArazzoWorkspaceLoader
             document.Workspace = _workspace;
         }
 
+        await LoadSourceDescriptionsAsync(document, cancellationToken).ConfigureAwait(false);
+
         foreach (var remoteReference in CollectRemoteReferences(document))
         {
             if (remoteReference.ExternalResource is null || _workspace.Contains(remoteReference.ExternalResource))
@@ -91,9 +93,16 @@ internal sealed class ArazzoWorkspaceLoader
         try
         {
             var result = await ReadExternalOpenApiDocumentAsync(stream, resolvedUri, cancellationToken).ConfigureAwait(false);
-            if (result.Document?.Components?.Schemas is null)
+            if (result.Document is null)
             {
                 return false;
+            }
+
+            _workspace.RegisterOpenApiDocument(resolvedUri, result.Document);
+
+            if (result.Document.Components?.Schemas is null)
+            {
+                return true;
             }
 
             var hostDocument = new ArazzoDocument
@@ -109,12 +118,61 @@ internal sealed class ArazzoWorkspaceLoader
                     ArazzoInput.ConvertFromOpenApiSchema(schema.Value, hostDocument));
             }
 
-            return result.Document.Components.Schemas.Count > 0;
+            return true;
         }
         catch (Exception)
         {
             return false;
         }
+    }
+
+    private async Task LoadSourceDescriptionsAsync(ArazzoDocument? document, CancellationToken cancellationToken)
+    {
+        if (document?.SourceDescriptions is null)
+        {
+            return;
+        }
+
+        foreach (var sourceDescription in document.SourceDescriptions)
+        {
+            if (sourceDescription.Url is null ||
+                string.IsNullOrEmpty(sourceDescription.Name) ||
+                sourceDescription.Type is ArazzoDescriptionType.Arazzo)
+            {
+                continue;
+            }
+
+            var resolvedUri = new Uri(document.BaseUri, sourceDescription.Url);
+            if (_workspace.IsOpenApiDocumentLoaded(resolvedUri) || !ShouldTryLoadSourceDescription(sourceDescription.Url))
+            {
+                continue;
+            }
+
+            try
+            {
+                await using var stream = await _loader.LoadAsync(document.BaseUri, sourceDescription.Url, cancellationToken).ConfigureAwait(false);
+                await using var bufferedStream = new MemoryStream();
+                await stream.CopyToAsync(bufferedStream, cancellationToken).ConfigureAwait(false);
+                ResetStream(bufferedStream);
+                await TryLoadExternalOpenApiDocumentAsync(bufferedStream, resolvedUri, cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                // Source descriptions that are not locally available are intentionally left unresolved.
+            }
+        }
+    }
+
+    private bool ShouldTryLoadSourceDescription(Uri sourceDescriptionUrl)
+    {
+        if (!sourceDescriptionUrl.IsAbsoluteUri || sourceDescriptionUrl.IsFile)
+        {
+            return true;
+        }
+
+        return _readerSettings.OpenApiSettings.CustomExternalLoader is not null &&
+            !sourceDescriptionUrl.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) &&
+            !sourceDescriptionUrl.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<IArazzoInput?> ReadExternalSchemaAsync(MemoryStream stream, Uri resolvedUri, CancellationToken cancellationToken)

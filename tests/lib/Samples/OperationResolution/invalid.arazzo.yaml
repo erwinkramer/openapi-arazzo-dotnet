@@ -1,0 +1,15 @@
+arazzo: 1.0.1
+info:
+  title: Operation resolution invalid
+  version: 1.0.0
+sourceDescriptions:
+  - name: petstore
+    url: petstore.openapi.yaml
+    type: openapi
+workflows:
+  - workflowId: wf
+    steps:
+      - stepId: missingOperationId
+        operationId: missingOperation
+      - stepId: missingOperationPath
+        operationPath: '{$sourceDescriptions.petstore.url}#/paths/~1pets/post'

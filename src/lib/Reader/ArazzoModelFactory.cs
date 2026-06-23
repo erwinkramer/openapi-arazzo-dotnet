@@ -3,6 +3,8 @@
 using System.Security;
 using System.Text;
 
+using BinkyLabs.OpenApi.Arazzo.Validation;
+
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Reader;
 
@@ -125,6 +127,10 @@ public static class ArazzoModelFactory
             var loader = settings.OpenApiSettings.CustomExternalLoader ?? new DefaultStreamLoader(settings.HttpClient);
             var workspaceLoader = new Reader.ArazzoWorkspaceLoader(workspace, loader, settings);
             await workspaceLoader.LoadAsync(new BaseArazzoReference { ExternalResource = "/" }, readResult.Document, cancellationToken).ConfigureAwait(false);
+            foreach (var error in ArazzoSemanticReferenceValidator.ValidateLoadedOperationReferences(readResult.Document))
+            {
+                readResult.Diagnostic?.Errors.Add(new OpenApiError(string.Empty, error));
+            }
         }
 
         return readResult;
