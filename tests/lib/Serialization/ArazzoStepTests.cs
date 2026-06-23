@@ -541,4 +541,130 @@ public class ArazzoStepTests
         Assert.Equal("$components.successActions.nextAction", json?["onSuccess"]?[0]?["reference"]?.GetValue<string>());
         Assert.Equal("$components.failureActions.retryAction", json?["onFailure"]?[0]?["reference"]?.GetValue<string>());
     }
+
+
+    [Theory]
+    [InlineData(true, "onSuccess")]
+    [InlineData(false, "onFailure")]
+    public void SerializeAsV1_WithDuplicateActionNames_ShouldThrowArazzoSerializationException(bool useSuccessActions, string propertyName)
+    {
+        var step = new ArazzoStep
+        {
+            StepId = "duplicateActionStep",
+            OperationId = "getUser"
+        };
+        if (useSuccessActions)
+        {
+            step.OnSuccess =
+            [
+                new ArazzoSuccessAction { Name = "duplicateAction", Type = ArazzoSuccessType.End },
+                new ArazzoSuccessAction { Name = "duplicateAction", Type = ArazzoSuccessType.End }
+            ];
+        }
+        else
+        {
+            step.OnFailure =
+            [
+                new ArazzoFailureAction { Name = "duplicateAction", Type = ArazzoFailureType.End },
+                new ArazzoFailureAction { Name = "duplicateAction", Type = ArazzoFailureType.End }
+            ];
+        }
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => step.SerializeAsV1(writer));
+
+        Assert.Contains($"{propertyName} contains duplicate action 'duplicateAction'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(true, "onSuccess", "$components.successActions.reusableAction")]
+    [InlineData(false, "onFailure", "$components.failureActions.reusableAction")]
+    public void SerializeAsV1_WithDuplicateActionReferences_ShouldThrowArazzoSerializationException(bool useSuccessActions, string propertyName, string reference)
+    {
+        var step = new ArazzoStep
+        {
+            StepId = "duplicateActionReferenceStep",
+            OperationId = "getUser"
+        };
+        if (useSuccessActions)
+        {
+            step.OnSuccess =
+            [
+                new ArazzoSuccessActionReference("reusableAction"),
+                new ArazzoSuccessActionReference("reusableAction")
+            ];
+        }
+        else
+        {
+            step.OnFailure =
+            [
+                new ArazzoFailureActionReference("reusableAction"),
+                new ArazzoFailureActionReference("reusableAction")
+            ];
+        }
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => step.SerializeAsV1(writer));
+
+        Assert.Contains($"{propertyName} contains duplicate action '{reference}'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("onSuccess")]
+    [InlineData("onFailure")]
+    public void Deserialize_WithDuplicateActionNames_AddsDiagnosticError(string propertyName)
+    {
+        var json = $$"""
+        {
+            "stepId": "duplicateActionStep",
+            "operationId": "getUser",
+            "{{propertyName}}": [
+                {
+                    "name": "duplicateAction",
+                    "type": "end"
+                },
+                {
+                    "name": "duplicateAction",
+                    "type": "end"
+                }
+            ]
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadStep(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains($"{propertyName} contains duplicate action 'duplicateAction'", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("onSuccess", "$components.successActions.reusableAction")]
+    [InlineData("onFailure", "$components.failureActions.reusableAction")]
+    public void Deserialize_WithDuplicateActionReferences_AddsDiagnosticError(string propertyName, string reference)
+    {
+        var json = $$"""
+        {
+            "stepId": "duplicateActionReferenceStep",
+            "operationId": "getUser",
+            "{{propertyName}}": [
+                {
+                    "reference": "{{reference}}"
+                },
+                {
+                    "reference": "{{reference}}"
+                }
+            ]
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadStep(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains($"{propertyName} contains duplicate action '{reference}'", StringComparison.Ordinal));
+    }
+
 }
