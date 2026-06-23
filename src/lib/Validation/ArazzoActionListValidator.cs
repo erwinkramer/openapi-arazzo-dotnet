@@ -10,7 +10,8 @@ internal static class ArazzoActionListValidator
 {
     internal static void ValidateSerialization<T>(IEnumerable<T>? actions, string elementName) where T : IArazzoResultAction
     {
-        foreach (var error in Validate(actions, elementName))
+        var error = Validate(actions, elementName).FirstOrDefault();
+        if (error is not null)
         {
             throw new ArazzoSerializationException(error);
         }
