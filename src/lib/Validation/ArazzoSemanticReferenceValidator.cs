@@ -156,27 +156,18 @@ internal static partial class ArazzoSemanticReferenceValidator
 
     private static IEnumerable<string> ValidateOperationPathSourceDescriptions(string? operationPath, ISet<string> sourceDescriptionNames, string elementName)
     {
-        if (string.IsNullOrEmpty(operationPath))
-        {
-            yield break;
-        }
-
-        foreach (var error in ValidateSourceDescriptionExpressions(operationPath, sourceDescriptionNames, elementName))
-        {
-            yield return error;
-        }
+        return string.IsNullOrEmpty(operationPath)
+            ? []
+            : ValidateSourceDescriptionExpressions(operationPath, sourceDescriptionNames, elementName);
     }
 
     private static IEnumerable<string> ValidateSourceDescriptionExpressions(string value, ISet<string> sourceDescriptionNames, string elementName)
     {
-        foreach (Match match in SourceDescriptionUrlExpressionRegex().Matches(value))
-        {
-            var sourceDescriptionName = match.Groups[1].Value;
-            if (!sourceDescriptionNames.Contains(sourceDescriptionName))
-            {
-                yield return $"{elementName} references unknown sourceDescription '{sourceDescriptionName}'.";
-            }
-        }
+        return SourceDescriptionUrlExpressionRegex()
+                .Matches(value)
+                .Select(static match => match.Groups[1].Value)
+                .Where(sourceDescriptionName => !sourceDescriptionNames.Contains(sourceDescriptionName))
+                .Select(x => $"{elementName} references unknown sourceDescription '{x}'.");
     }
 
     private static IEnumerable<string> ValidateReusableReferences<T>(IEnumerable<T>? items, string elementName, ArazzoDocument document)
