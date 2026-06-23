@@ -14,7 +14,7 @@ internal static partial class ArazzoSemanticReferenceValidator
 
     internal static void ValidateSerialization(ArazzoDocument document)
     {
-        foreach (var error in Validate(document))
+        if (Validate(document).FirstOrDefault() is string error)
         {
             throw new ArazzoSerializationException(error);
         }
