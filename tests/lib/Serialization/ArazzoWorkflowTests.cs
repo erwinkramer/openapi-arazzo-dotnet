@@ -124,7 +124,7 @@ public class ArazzoWorkflowTests
             WorkflowId = "minimalWorkflow",
             Steps = new List<ArazzoStep>
             {
-                new ArazzoStep { StepId = "step1" }
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" }
             }
         };
         using var textWriter = new StringWriter();
@@ -136,7 +136,8 @@ public class ArazzoWorkflowTests
             "workflowId": "minimalWorkflow",
             "steps": [
                 {
-                    "stepId": "step1"
+                    "stepId": "step1",
+                    "operationId": "getUser"
                 }
             ]
         }
@@ -222,7 +223,7 @@ public class ArazzoWorkflowTests
             WorkflowId = "emptyWorkflow",
             Steps = new List<ArazzoStep>
             {
-                new ArazzoStep { StepId = "step1" }
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" }
             }
         };
         using var textWriter = new StringWriter();
@@ -234,7 +235,8 @@ public class ArazzoWorkflowTests
             "workflowId": "emptyWorkflow",
             "steps": [
                 {
-                    "stepId": "step1"
+                    "stepId": "step1",
+                    "operationId": "getUser"
                 }
             ]
         }
@@ -256,7 +258,7 @@ public class ArazzoWorkflowTests
             WorkflowId = "invalidOutputWorkflow",
             Steps = new List<ArazzoStep>
             {
-                new ArazzoStep { StepId = "step1" }
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" }
             },
             Outputs = new Dictionary<string, string>
             {
@@ -279,7 +281,7 @@ public class ArazzoWorkflowTests
             WorkflowId = "invalidOutputWorkflow",
             Steps = new List<ArazzoStep>
             {
-                new ArazzoStep { StepId = "step1" }
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" }
             },
             Outputs = new Dictionary<string, string>
             {
@@ -333,8 +335,8 @@ public class ArazzoWorkflowTests
             WorkflowId = "duplicateStepWorkflow",
             Steps = new List<ArazzoStep>
             {
-                new ArazzoStep { StepId = "step1" },
-                new ArazzoStep { StepId = "step1" }
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" },
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" }
             }
         };
         using var textWriter = new StringWriter();
@@ -515,4 +517,128 @@ public class ArazzoWorkflowTests
         var parameter = Assert.IsType<ArazzoParameterReference>(Assert.Single(workflow.Parameters!));
         Assert.Equal("7", parameter.Value?.GetValue<string>());
     }
+
+
+    [Theory]
+    [InlineData(true, "successActions")]
+    [InlineData(false, "failureActions")]
+    public void SerializeAsV1_WithDuplicateActionNames_ShouldThrowArazzoSerializationException(bool useSuccessActions, string propertyName)
+    {
+        var workflow = new ArazzoWorkflow
+        {
+            WorkflowId = "duplicateActionWorkflow",
+            Steps = [new ArazzoStep { StepId = "step1", OperationId = "getUser" }]
+        };
+        if (useSuccessActions)
+        {
+            workflow.SuccessActions =
+            [
+                new ArazzoSuccessAction { Name = "duplicateAction", Type = ArazzoSuccessType.End },
+                new ArazzoSuccessAction { Name = "duplicateAction", Type = ArazzoSuccessType.End }
+            ];
+        }
+        else
+        {
+            workflow.FailureActions =
+            [
+                new ArazzoFailureAction { Name = "duplicateAction", Type = ArazzoFailureType.End },
+                new ArazzoFailureAction { Name = "duplicateAction", Type = ArazzoFailureType.End }
+            ];
+        }
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => workflow.SerializeAsV1(writer));
+
+        Assert.Contains($"{propertyName} contains duplicate action 'duplicateAction'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(true, "successActions", "$components.successActions.reusableAction")]
+    [InlineData(false, "failureActions", "$components.failureActions.reusableAction")]
+    public void SerializeAsV1_WithDuplicateActionReferences_ShouldThrowArazzoSerializationException(bool useSuccessActions, string propertyName, string reference)
+    {
+        var workflow = new ArazzoWorkflow
+        {
+            WorkflowId = "duplicateActionReferenceWorkflow",
+            Steps = [new ArazzoStep { StepId = "step1", OperationId = "getUser" }]
+        };
+        if (useSuccessActions)
+        {
+            workflow.SuccessActions =
+            [
+                new ArazzoSuccessActionReference("reusableAction"),
+                new ArazzoSuccessActionReference("reusableAction")
+            ];
+        }
+        else
+        {
+            workflow.FailureActions =
+            [
+                new ArazzoFailureActionReference("reusableAction"),
+                new ArazzoFailureActionReference("reusableAction")
+            ];
+        }
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => workflow.SerializeAsV1(writer));
+
+        Assert.Contains($"{propertyName} contains duplicate action '{reference}'", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData("successActions")]
+    [InlineData("failureActions")]
+    public void Deserialize_WithDuplicateActionNames_AddsDiagnosticError(string propertyName)
+    {
+        var json = $$"""
+        {
+            "workflowId": "duplicateActionWorkflow",
+            "{{propertyName}}": [
+                {
+                    "name": "duplicateAction",
+                    "type": "end"
+                },
+                {
+                    "name": "duplicateAction",
+                    "type": "end"
+                }
+            ]
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadWorkflow(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains($"{propertyName} contains duplicate action 'duplicateAction'", StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("successActions", "$components.successActions.reusableAction")]
+    [InlineData("failureActions", "$components.failureActions.reusableAction")]
+    public void Deserialize_WithDuplicateActionReferences_AddsDiagnosticError(string propertyName, string reference)
+    {
+        var json = $$"""
+        {
+            "workflowId": "duplicateActionReferenceWorkflow",
+            "{{propertyName}}": [
+                {
+                    "reference": "{{reference}}"
+                },
+                {
+                    "reference": "{{reference}}"
+                }
+            ]
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        _ = ArazzoV1Deserializer.LoadWorkflow(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains($"{propertyName} contains duplicate action '{reference}'", StringComparison.Ordinal));
+    }
+
 }

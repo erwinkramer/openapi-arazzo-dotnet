@@ -18,6 +18,9 @@ internal static partial class ArazzoSemanticReferenceValidator
     [GeneratedRegex(@"^\$sourceDescriptions\.([^\.\s#]+)\.(.+)$", RegexOptions.CultureInvariant)]
     private static partial Regex SourceDescriptionOperationIdRegex();
 
+    [GeneratedRegex(@"^\$sourceDescriptions\.([^.\s#]+)\.[^.\s#]+$", RegexOptions.CultureInvariant)]
+    private static partial Regex SourceDescriptionWorkflowExpressionRegex();
+
     internal static void ValidateSerialization(ArazzoDocument document)
     {
         if (Validate(document).FirstOrDefault() is string error)
@@ -73,6 +76,11 @@ internal static partial class ArazzoSemanticReferenceValidator
 
         foreach (var workflow in document.Workflows ?? [])
         {
+            foreach (var error in ValidateDependsOnReferences(workflow.DependsOn, workflowIds, sourceDescriptionNames, $"Workflow '{workflow.WorkflowId}'"))
+            {
+                yield return error;
+            }
+
             var stepIds = new HashSet<string>(
                 workflow.Steps?
                     .Select(static step => step.StepId)
@@ -125,6 +133,50 @@ internal static partial class ArazzoSemanticReferenceValidator
             foreach (var error in ValidateActions(workflow.FailureActions, workflowIds, sourceDescriptionNames, stepIds, $"Workflow '{workflow.WorkflowId}' failure action", document))
             {
                 yield return error;
+            }
+        }
+    }
+
+    private static IEnumerable<string> ValidateDependsOnReferences(
+        IEnumerable<string>? dependsOn,
+        ISet<string> workflowIds,
+        ISet<string> sourceDescriptionNames,
+        string elementName)
+    {
+        foreach (var dependency in dependsOn ?? [])
+        {
+            if (string.IsNullOrEmpty(dependency))
+            {
+                continue;
+            }
+
+            if (dependency.StartsWith("$", StringComparison.Ordinal))
+            {
+                if (!ArazzoRuntimeExpressionValidator.IsRuntimeExpression(dependency))
+                {
+                    yield return $"{elementName} dependsOn value '{dependency}' must be a valid runtime expression.";
+                    continue;
+                }
+
+                var match = SourceDescriptionWorkflowExpressionRegex().Match(dependency);
+                if (!match.Success)
+                {
+                    yield return $"{elementName} dependsOn value '{dependency}' must reference an external workflow using '$sourceDescriptions.<name>.<workflowId>'.";
+                    continue;
+                }
+
+                var sourceDescriptionName = match.Groups[1].Value;
+                if (!sourceDescriptionNames.Contains(sourceDescriptionName))
+                {
+                    yield return $"{elementName} dependsOn value '{dependency}' references unknown sourceDescription '{sourceDescriptionName}'.";
+                }
+
+                continue;
+            }
+
+            if (!workflowIds.Contains(dependency))
+            {
+                yield return $"{elementName} dependsOn references unknown workflowId '{dependency}'.";
             }
         }
     }

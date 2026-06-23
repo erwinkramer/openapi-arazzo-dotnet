@@ -39,7 +39,7 @@ public class ArazzoDocumentTests
                     Summary = "Test workflow",
                     Steps = new List<ArazzoStep>
                     {
-                        new ArazzoStep { StepId = "step1" }
+                        new ArazzoStep { StepId = "step1", OperationId = "getUser" }
                     }
                 }
             },
@@ -84,7 +84,8 @@ public class ArazzoDocumentTests
                     "summary": "Test workflow",
                     "steps": [
                         {
-                            "stepId": "step1"
+                            "stepId": "step1",
+                            "operationId": "getUser"
                         }
                     ]
                 }
@@ -138,7 +139,7 @@ public class ArazzoDocumentTests
                     WorkflowId = "workflow1",
                     Steps = new List<ArazzoStep>
                     {
-                        new ArazzoStep { StepId = "step1" }
+                        new ArazzoStep { StepId = "step1", OperationId = "getUser" }
                     }
                 }
             }
@@ -166,7 +167,8 @@ public class ArazzoDocumentTests
                     "workflowId": "workflow1",
                     "steps": [
                         {
-                            "stepId": "step1"
+                            "stepId": "step1",
+                            "operationId": "getUser"
                         }
                     ]
                 }
@@ -205,7 +207,7 @@ public class ArazzoDocumentTests
         yield return
         [
             CreateDocument(
-                new ArazzoStep { StepId = "step1" },
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" },
                 successActions: [new ArazzoSuccessAction { Name = "goto", Type = ArazzoSuccessType.Goto, StepId = "missingStep" }]),
             "references unknown stepId 'missingStep'"
         ];
@@ -224,6 +226,21 @@ public class ArazzoDocumentTests
             CreateDocument(new ArazzoStep { StepId = "step1", OperationPath = "{$sourceDescriptions.missing.url}#/paths/~1users/get" }),
             "references unknown sourceDescription 'missing'"
         ];
+        yield return
+        [
+            CreateDocument(new ArazzoStep { StepId = "step1" }, dependsOn: new HashSet<string> { "missingWorkflow" }),
+            "dependsOn references unknown workflowId 'missingWorkflow'"
+        ];
+        yield return
+        [
+            CreateDocument(new ArazzoStep { StepId = "step1" }, dependsOn: new HashSet<string> { "$sourceDescriptions.missing.externalWorkflow" }),
+            "dependsOn value '$sourceDescriptions.missing.externalWorkflow' references unknown sourceDescription 'missing'"
+        ];
+        yield return
+        [
+            CreateDocument(new ArazzoStep { StepId = "step1" }, dependsOn: new HashSet<string> { "$steps.step1" }),
+            "dependsOn value '$steps.step1' must reference an external workflow using '$sourceDescriptions.<name>.<workflowId>'"
+        ];
     }
 
     [Fact]
@@ -240,7 +257,8 @@ public class ArazzoDocumentTests
             parameters: new Dictionary<string, ArazzoParameter>
             {
                 ["shared"] = new ArazzoParameter { Name = "id", In = ParameterLocation.Query, Value = "1" }
-            });
+            },
+            dependsOn: new HashSet<string> { "child", "$sourceDescriptions.source1.externalWorkflow" });
         using var textWriter = new StringWriter();
         var writer = new OpenApiJsonWriter(textWriter);
 
@@ -253,7 +271,8 @@ public class ArazzoDocumentTests
     private static ArazzoDocument CreateDocument(
         ArazzoStep step,
         IList<IArazzoSuccessAction>? successActions = null,
-        IDictionary<string, ArazzoParameter>? parameters = null)
+        IDictionary<string, ArazzoParameter>? parameters = null,
+        ISet<string>? dependsOn = null)
     {
         return new ArazzoDocument
         {
@@ -276,6 +295,7 @@ public class ArazzoDocumentTests
                 new ArazzoWorkflow
                 {
                     WorkflowId = "workflow1",
+                    DependsOn = dependsOn,
                     Steps = new List<ArazzoStep> { step },
                     SuccessActions = successActions
                 },
@@ -284,7 +304,7 @@ public class ArazzoDocumentTests
                     WorkflowId = "child",
                     Steps = new List<ArazzoStep>
                     {
-                        new ArazzoStep { StepId = "childStep" }
+                        new ArazzoStep { StepId = "childStep", OperationId = "getUser" }
                     }
                 }
             },
@@ -524,7 +544,7 @@ public class ArazzoDocumentTests
                 new ArazzoWorkflow
                 {
                     WorkflowId = "workflow1",
-                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step1" } }
+                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step1", OperationId = "getUser" } }
                 }
             }
         };
@@ -551,12 +571,12 @@ public class ArazzoDocumentTests
                 new ArazzoWorkflow
                 {
                     WorkflowId = "workflow1",
-                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step1" } }
+                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step1", OperationId = "getUser" } }
                 },
                 new ArazzoWorkflow
                 {
                     WorkflowId = "workflow1",
-                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step2" } }
+                    Steps = new List<ArazzoStep> { new ArazzoStep { StepId = "step2", OperationId = "getUser" } }
                 }
             }
         };
