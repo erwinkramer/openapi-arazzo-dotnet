@@ -1,6 +1,6 @@
-using BinkyLabs.OpenApi.Arazzo.Reader;
-
 using System.Linq;
+
+using BinkyLabs.OpenApi.Arazzo.Reader;
 
 using Microsoft.OpenApi;
 
