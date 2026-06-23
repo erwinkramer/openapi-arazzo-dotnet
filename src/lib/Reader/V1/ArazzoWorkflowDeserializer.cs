@@ -25,8 +25,16 @@ internal static partial class ArazzoV1Deserializer
             }
         } },
         { ArazzoConstants.ArazzoWorkflowSteps, static (o, v, c) => o.Steps = v.CreateList(LoadStep, c) },
-        { ArazzoConstants.ArazzoWorkflowSuccessActions, static (o, v, c) => o.SuccessActions = v.CreateList<IArazzoSuccessAction>(LoadSuccessAction, c) },
-        { ArazzoConstants.ArazzoWorkflowFailureActions, static (o, v, c) => o.FailureActions = v.CreateList<IArazzoFailureAction>(LoadFailureAction, c) },
+        { ArazzoConstants.ArazzoWorkflowSuccessActions, static (o, v, c) =>
+        {
+            o.SuccessActions = v.CreateList<IArazzoSuccessAction>(LoadSuccessAction, c);
+            ArazzoActionListValidator.ValidateDeserialization(o.SuccessActions, c, $"{nameof(ArazzoWorkflow)} successActions");
+        } },
+        { ArazzoConstants.ArazzoWorkflowFailureActions, static (o, v, c) =>
+        {
+            o.FailureActions = v.CreateList<IArazzoFailureAction>(LoadFailureAction, c);
+            ArazzoActionListValidator.ValidateDeserialization(o.FailureActions, c, $"{nameof(ArazzoWorkflow)} failureActions");
+        } },
         { ArazzoConstants.ArazzoWorkflowOutputs, static (o, v, c) =>
         {
             ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoWorkflow)}.{nameof(ArazzoWorkflow.Outputs)}");

@@ -80,6 +80,7 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
         }
         ValidateUniqueStepIds();
         ValidateWorkflowParameters();
+        ValidateActions();
         ArazzoRuntimeExpressionValidator.ValidateSerializationExpressions(Outputs, $"{nameof(ArazzoWorkflow)}.{nameof(Outputs)}");
 
         writer.WriteStartObject();
@@ -133,5 +134,11 @@ public class ArazzoWorkflow : IArazzoSerializable, IArazzoExtensible
             $"{nameof(ArazzoWorkflow)} '{WorkflowId}'",
             Steps?.Any(static step => !string.IsNullOrEmpty(step.OperationId) || !string.IsNullOrEmpty(step.OperationPath)) == true,
             "when applied to an operation step");
+    }
+
+    private void ValidateActions()
+    {
+        ArazzoActionListValidator.ValidateSerialization(SuccessActions, $"{nameof(ArazzoWorkflow)} '{WorkflowId}' successActions");
+        ArazzoActionListValidator.ValidateSerialization(FailureActions, $"{nameof(ArazzoWorkflow)} '{WorkflowId}' failureActions");
     }
 }

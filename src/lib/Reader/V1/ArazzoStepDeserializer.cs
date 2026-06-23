@@ -18,8 +18,16 @@ internal static partial class ArazzoV1Deserializer
         { ArazzoConstants.ArazzoStepParameters, static (o, v, c) => o.Parameters = v.CreateList<IArazzoParameter>(LoadParameter, c) },
         { ArazzoConstants.ArazzoStepRequestBody, static (o, v, c) => o.RequestBody = LoadRequestBody(v, c) },
         { ArazzoConstants.ArazzoStepSuccessCriteria, static (o, v, c) => o.SuccessCriteria = v.CreateList(LoadCriterion, c) },
-        { ArazzoConstants.ArazzoStepOnSuccess, static (o, v, c) => o.OnSuccess = v.CreateList<IArazzoSuccessAction>(LoadSuccessAction, c) },
-        { ArazzoConstants.ArazzoStepOnFailure, static (o, v, c) => o.OnFailure = v.CreateList<IArazzoFailureAction>(LoadFailureAction, c) },
+        { ArazzoConstants.ArazzoStepOnSuccess, static (o, v, c) =>
+        {
+            o.OnSuccess = v.CreateList<IArazzoSuccessAction>(LoadSuccessAction, c);
+            ArazzoActionListValidator.ValidateDeserialization(o.OnSuccess, c, $"{nameof(ArazzoStep)} onSuccess");
+        } },
+        { ArazzoConstants.ArazzoStepOnFailure, static (o, v, c) =>
+        {
+            o.OnFailure = v.CreateList<IArazzoFailureAction>(LoadFailureAction, c);
+            ArazzoActionListValidator.ValidateDeserialization(o.OnFailure, c, $"{nameof(ArazzoStep)} onFailure");
+        } },
         { ArazzoConstants.ArazzoStepOutputs, static (o, v, c) =>
         {
             ArazzoKeyValidator.ValidateDeserializationKeys(v, c, $"{nameof(ArazzoStep)}.{nameof(ArazzoStep.Outputs)}");
