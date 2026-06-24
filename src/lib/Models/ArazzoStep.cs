@@ -11,6 +11,20 @@ namespace BinkyLabs.OpenApi.Arazzo;
 public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
 {
     /// <summary>
+    /// Builds a JSON Pointer operation key from an OpenAPI path item and HTTP method.
+    /// </summary>
+    /// <param name="pathItem">The OpenAPI path item, for example <c>/pets/{petId}</c>.</param>
+    /// <param name="httpMethod">The HTTP method, for example <c>GET</c> or <c>POST</c>.</param>
+    /// <returns>The normalized operation pointer key.</returns>
+    public static string BuildOperationPointer(string pathItem, string httpMethod)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(pathItem);
+        ArgumentException.ThrowIfNullOrEmpty(httpMethod);
+
+        return $"#/paths/{EscapePointerSegment(pathItem)}/{httpMethod.ToLowerInvariant()}";
+    }
+
+    /// <summary>
     /// Gets or sets the description of the step.
     /// </summary>
     public string? Description { get; set; }
@@ -190,9 +204,15 @@ public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
 
     internal bool CanHaveRequestBody() =>
         CountTargetFields() == 1 && IsOperationTargeted();
+
     private void ValidateActions()
     {
         ArazzoActionListValidator.ValidateSerialization(OnSuccess, $"{nameof(ArazzoStep)} '{StepId}' onSuccess");
         ArazzoActionListValidator.ValidateSerialization(OnFailure, $"{nameof(ArazzoStep)} '{StepId}' onFailure");
+    }
+
+    private static string EscapePointerSegment(string segment)
+    {
+        return segment.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
     }
 }

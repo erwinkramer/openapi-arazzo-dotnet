@@ -10,6 +10,21 @@ namespace BinkyLabs.OpenApi.Arazzo.Tests;
 public class ArazzoStepTests
 {
     [Fact]
+    public void BuildOperationPointer_ShouldEscapePathAndNormalizeMethod()
+    {
+        var pointer = ArazzoStep.BuildOperationPointer("/pets/{petId}", "GET");
+
+        Assert.Equal("#/paths/~1pets~1{petId}/get", pointer);
+    }
+
+    [Fact]
+    public void BuildOperationPointer_WithEmptyStrings_ShouldThrowArgumentException()
+    {
+        Assert.ThrowsAny<ArgumentException>(() => ArazzoStep.BuildOperationPointer(string.Empty, "get"));
+        Assert.ThrowsAny<ArgumentException>(() => ArazzoStep.BuildOperationPointer("/pets", string.Empty));
+    }
+
+    [Fact]
     public void SerializeAsV1_ShouldWriteCorrectJson()
     {
         var step = new ArazzoStep

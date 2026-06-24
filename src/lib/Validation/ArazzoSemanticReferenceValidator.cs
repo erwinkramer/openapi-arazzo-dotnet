@@ -9,8 +9,14 @@ namespace BinkyLabs.OpenApi.Arazzo.Validation;
 
 internal static partial class ArazzoSemanticReferenceValidator
 {
-    [GeneratedRegex(@"\$sourceDescriptions\.([^.\}\s#]+)\.url", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"\$sourceDescriptions\.([^\.\}\s#]+)\.url", RegexOptions.CultureInvariant)]
     private static partial Regex SourceDescriptionUrlExpressionRegex();
+
+    [GeneratedRegex(@"^\{?\$sourceDescriptions\.([^\.\}\s#]+)\.url\}?(#(?:/(?:[^~/]|~[01])*)*)$", RegexOptions.CultureInvariant)]
+    private static partial Regex OperationPathRegex();
+
+    [GeneratedRegex(@"^\$sourceDescriptions\.([^\.\s#]+)\.(.+)$", RegexOptions.CultureInvariant)]
+    private static partial Regex SourceDescriptionOperationIdRegex();
 
     [GeneratedRegex(@"^\$sourceDescriptions\.([^.\s#]+)\.[^.\s#]+$", RegexOptions.CultureInvariant)]
     private static partial Regex SourceDescriptionWorkflowExpressionRegex();
@@ -30,6 +36,24 @@ internal static partial class ArazzoSemanticReferenceValidator
         foreach (var error in Validate(document))
         {
             context.Diagnostic.Errors.Add(new OpenApiError(string.Empty, error));
+        }
+    }
+
+    internal static IEnumerable<string> ValidateLoadedOperationReferences(ArazzoDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        document.RegisterComponents();
+
+        foreach (var workflow in document.Workflows ?? [])
+        {
+            foreach (var step in workflow.Steps ?? [])
+            {
+                foreach (var error in ValidateOperationReferenceResolution(step, document, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'"))
+                {
+                    yield return error;
+                }
+            }
         }
     }
 
@@ -71,6 +95,11 @@ internal static partial class ArazzoSemanticReferenceValidator
                 }
 
                 foreach (var error in ValidateOperationPathSourceDescriptions(step.OperationPath, sourceDescriptionNames, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'"))
+                {
+                    yield return error;
+                }
+
+                foreach (var error in ValidateOperationReferenceResolution(step, document, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'"))
                 {
                     yield return error;
                 }
@@ -220,6 +249,107 @@ internal static partial class ArazzoSemanticReferenceValidator
                 .Select(static match => match.Groups[1].Value)
                 .Where(sourceDescriptionName => !sourceDescriptionNames.Contains(sourceDescriptionName))
                 .Select(x => $"{elementName} references unknown sourceDescription '{x}'.");
+    }
+
+    private static IEnumerable<string> ValidateOperationReferenceResolution(ArazzoStep step, ArazzoDocument document, string elementName)
+    {
+        if (!string.IsNullOrEmpty(step.OperationPath))
+        {
+            foreach (var error in ValidateOperationPathResolution(step.OperationPath, document, elementName))
+            {
+                yield return error;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(step.OperationId))
+        {
+            foreach (var error in ValidateOperationIdResolution(step.OperationId, document, elementName))
+            {
+                yield return error;
+            }
+        }
+    }
+
+    private static IEnumerable<string> ValidateOperationPathResolution(string operationPath, ArazzoDocument document, string elementName)
+    {
+        var match = OperationPathRegex().Match(operationPath);
+        if (!match.Success)
+        {
+            yield return $"{elementName} operationPath '{operationPath}' must reference a sourceDescription URL runtime expression followed by a JSON Pointer.";
+            yield break;
+        }
+
+        var sourceDescriptionName = match.Groups[1].Value;
+        if (document.Workspace?.TryGetSourceDescription(sourceDescriptionName, out var sourceDescription) != true)
+        {
+            yield break;
+        }
+
+        if (!document.Workspace.IsOpenApiDocumentLoaded(sourceDescription.Uri))
+        {
+            yield break;
+        }
+
+        var pointer = match.Groups[2].Value;
+        if (!document.Workspace.ContainsOpenApiOperationPointer(sourceDescription.Uri, pointer))
+        {
+            yield return $"{elementName} operationPath '{operationPath}' does not resolve to an operation in sourceDescription '{sourceDescriptionName}'.";
+        }
+    }
+
+    private static IEnumerable<string> ValidateOperationIdResolution(string operationId, ArazzoDocument document, string elementName)
+    {
+        var sourceDescriptionOperationIdMatch = SourceDescriptionOperationIdRegex().Match(operationId);
+        if (sourceDescriptionOperationIdMatch.Success)
+        {
+            var sourceDescriptionName = sourceDescriptionOperationIdMatch.Groups[1].Value;
+            var referencedOperationId = sourceDescriptionOperationIdMatch.Groups[2].Value;
+            if (document.Workspace?.TryGetSourceDescription(sourceDescriptionName, out var sourceDescription) != true ||
+                document.SourceDescriptions?.Any(sourceDescription => sourceDescription.Name == sourceDescriptionName) != true)
+            {
+                yield return $"{elementName} references unknown sourceDescription '{sourceDescriptionName}'.";
+                yield break;
+            }
+
+            if (!document.Workspace.IsOpenApiDocumentLoaded(sourceDescription.Uri))
+            {
+                yield break;
+            }
+
+            if (document.Workspace.CountOpenApiOperationId(sourceDescription.Uri, referencedOperationId) == 0)
+            {
+                yield return $"{elementName} operationId '{operationId}' does not resolve to an operation in sourceDescription '{sourceDescriptionName}'.";
+            }
+
+            yield break;
+        }
+
+        if (document.Workspace is null)
+        {
+            yield break;
+        }
+
+        var loadedSourceDescriptions = document.Workspace.GetSourceDescriptions()
+            .Where(static sourceDescription => sourceDescription.Type is not ArazzoDescriptionType.Arazzo)
+            .Where(sourceDescription => document.Workspace.IsOpenApiDocumentLoaded(sourceDescription.Uri))
+            .ToList();
+
+        if (loadedSourceDescriptions.Count == 0)
+        {
+            yield break;
+        }
+
+        var resolvingSourceDescriptionCount = loadedSourceDescriptions
+            .Count(sourceDescription => document.Workspace.CountOpenApiOperationId(sourceDescription.Uri, operationId) > 0);
+
+        if (resolvingSourceDescriptionCount == 0)
+        {
+            yield return $"{elementName} operationId '{operationId}' does not resolve to an operation in any loaded sourceDescription.";
+        }
+        else if (resolvingSourceDescriptionCount > 1)
+        {
+            yield return $"{elementName} operationId '{operationId}' is ambiguous across loaded sourceDescriptions; use '$sourceDescriptions.<name>.{operationId}' syntax.";
+        }
     }
 
     private static IEnumerable<string> ValidateReusableReferences<T>(IEnumerable<T>? items, string elementName, ArazzoDocument document)

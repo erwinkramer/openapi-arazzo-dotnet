@@ -12,6 +12,11 @@ internal class ArazzoWorkspace
     private readonly Dictionary<string, Uri> _documentsIdRegistry = new(StringComparer.Ordinal);
     private readonly Dictionary<Uri, IArazzoReferenceable> _componentRegistry = new(new UriWithFragmentEqualityComparer());
     private readonly Dictionary<Uri, IArazzoInput> _inputRegistry = new(new UriWithFragmentEqualityComparer());
+    private readonly Dictionary<string, SourceDescriptionRegistration> _sourceDescriptionRegistry = new(StringComparer.Ordinal);
+    private readonly Dictionary<Uri, HashSet<string>> _openApiOperationPointers = new(new UriWithFragmentEqualityComparer());
+    private readonly Dictionary<Uri, Dictionary<string, int>> _openApiOperationIdCounts = new(new UriWithFragmentEqualityComparer());
+
+    internal readonly record struct SourceDescriptionRegistration(Uri Uri, ArazzoDescriptionType? Type);
 
     private sealed class UriWithFragmentEqualityComparer : IEqualityComparer<Uri>
     {
@@ -80,6 +85,21 @@ internal class ArazzoWorkspace
         {
             _inputRegistry[pair.Key] = pair.Value;
         }
+
+        foreach (var pair in workspace._sourceDescriptionRegistry)
+        {
+            _sourceDescriptionRegistry[pair.Key] = pair.Value;
+        }
+
+        foreach (var pair in workspace._openApiOperationPointers)
+        {
+            _openApiOperationPointers[pair.Key] = new HashSet<string>(pair.Value, StringComparer.Ordinal);
+        }
+
+        foreach (var pair in workspace._openApiOperationIdCounts)
+        {
+            _openApiOperationIdCounts[pair.Key] = new Dictionary<string, int>(pair.Value, StringComparer.Ordinal);
+        }
     }
 
     /// <summary>
@@ -97,6 +117,8 @@ internal class ArazzoWorkspace
     public void RegisterComponents(ArazzoDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
+
+        RegisterSourceDescriptions(document);
 
         if (document.Workflows is not null)
         {
@@ -148,6 +170,85 @@ internal class ArazzoWorkspace
         {
             RegisterInputTree(item.Value, inputsBaseUri + item.Key);
         }
+    }
+
+    internal void RegisterOpenApiDocument(Uri documentUri, OpenApiDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(documentUri);
+        ArgumentNullException.ThrowIfNull(document);
+
+        var documentUriWithoutFragment = WithoutFragment(documentUri);
+        var operationPointers = _openApiOperationPointers.GetValueOrDefault(documentUriWithoutFragment);
+        if (operationPointers is null)
+        {
+            operationPointers = new HashSet<string>(StringComparer.Ordinal);
+            _openApiOperationPointers[documentUriWithoutFragment] = operationPointers;
+        }
+
+        var operationIdCounts = _openApiOperationIdCounts.GetValueOrDefault(documentUriWithoutFragment);
+        if (operationIdCounts is null)
+        {
+            operationIdCounts = new Dictionary<string, int>(StringComparer.Ordinal);
+            _openApiOperationIdCounts[documentUriWithoutFragment] = operationIdCounts;
+        }
+
+        foreach (var path in document.Paths ?? [])
+        {
+            foreach (var operation in path.Value.Operations ?? [])
+            {
+                operationPointers.Add(ArazzoStep.BuildOperationPointer(path.Key, operation.Key.Method));
+                if (!string.IsNullOrEmpty(operation.Value.OperationId))
+                {
+                    operationIdCounts[operation.Value.OperationId] = operationIdCounts.GetValueOrDefault(operation.Value.OperationId) + 1;
+                }
+            }
+        }
+    }
+
+    internal bool IsOpenApiDocumentLoaded(Uri documentUri)
+    {
+        return _openApiOperationPointers.ContainsKey(WithoutFragment(documentUri));
+    }
+
+    internal bool ContainsOpenApiOperationPointer(Uri documentUri, string pointer)
+    {
+        return _openApiOperationPointers.TryGetValue(WithoutFragment(documentUri), out var operationPointers) &&
+            operationPointers.Contains(NormalizeFragment(pointer));
+    }
+
+    internal int CountOpenApiOperationId(Uri documentUri, string operationId)
+    {
+        return _openApiOperationIdCounts.TryGetValue(WithoutFragment(documentUri), out var operationIdCounts) &&
+            operationIdCounts.TryGetValue(operationId, out var count)
+                ? count
+                : 0;
+    }
+
+    internal void RegisterSourceDescriptions(ArazzoDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        foreach (var sourceDescription in document.SourceDescriptions ?? [])
+        {
+            if (string.IsNullOrEmpty(sourceDescription.Name) || sourceDescription.Url is null)
+            {
+                continue;
+            }
+
+            var sourceDescriptionUri = new Uri(document.BaseUri, sourceDescription.Url);
+            _sourceDescriptionRegistry[sourceDescription.Name] = new SourceDescriptionRegistration(sourceDescriptionUri, sourceDescription.Type);
+            AddDocumentId(sourceDescription.Url.ToString(), sourceDescriptionUri);
+        }
+    }
+
+    internal bool TryGetSourceDescription(string name, out SourceDescriptionRegistration registration)
+    {
+        return _sourceDescriptionRegistry.TryGetValue(name, out registration);
+    }
+
+    internal IEnumerable<SourceDescriptionRegistration> GetSourceDescriptions()
+    {
+        return _sourceDescriptionRegistry.Values;
     }
 
     /// <summary>
@@ -507,4 +608,17 @@ internal class ArazzoWorkspace
 
         return null;
     }
+
+    private static Uri WithoutFragment(Uri uri)
+    {
+        return string.IsNullOrEmpty(uri.Fragment)
+            ? uri
+            : new UriBuilder(uri) { Fragment = string.Empty }.Uri;
+    }
+
+    private static string NormalizeFragment(string fragment)
+    {
+        return fragment.StartsWith("#", StringComparison.Ordinal) ? fragment : $"#{fragment}";
+    }
+
 }
