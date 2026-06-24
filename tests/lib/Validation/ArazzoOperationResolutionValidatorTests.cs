@@ -42,7 +42,7 @@ public class ArazzoOperationResolutionValidatorTests
         settings.OpenApiSettings.RuleSet = ValidationRuleSet.GetDefaultRuleSet();
 
         return await ArazzoModelFactory.LoadFormUrlAsync(
-            Path.Combine(GetSamplesDirectory(), Path.Join("OperationResolution", safeFileName)),
+            Path.Join(GetSamplesDirectory(), "OperationResolution", safeFileName),
             settings,
             TestContext.Current.CancellationToken);
     }
