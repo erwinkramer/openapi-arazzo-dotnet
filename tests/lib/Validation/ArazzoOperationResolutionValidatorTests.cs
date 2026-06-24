@@ -52,7 +52,7 @@ public class ArazzoOperationResolutionValidatorTests
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null)
         {
-            var samplesDirectory = Path.Combine(directory.FullName, Path.Join("tests", "lib", "Samples"));
+            var samplesDirectory = Path.Join(directory.FullName, "tests", "lib", "Samples");
             if (Directory.Exists(samplesDirectory))
             {
                 return samplesDirectory;
