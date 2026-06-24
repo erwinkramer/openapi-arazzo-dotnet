@@ -156,7 +156,7 @@ internal sealed class ArazzoWorkspaceLoader
                 ResetStream(bufferedStream);
                 await TryLoadExternalOpenApiDocumentAsync(bufferedStream, resolvedUri, cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception)
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 // Source descriptions that are not locally available are intentionally left unresolved.
             }
