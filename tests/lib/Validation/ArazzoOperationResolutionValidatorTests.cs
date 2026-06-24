@@ -36,12 +36,13 @@ public class ArazzoOperationResolutionValidatorTests
 
     private static async Task<BinkyLabs.OpenApi.Arazzo.ReadResult> LoadSampleAsync(string fileName)
     {
+        var safeFileName = Path.GetFileName(fileName);
         var settings = new ArazzoReaderSettings();
         settings.OpenApiSettings.LoadExternalRefs = true;
         settings.OpenApiSettings.RuleSet = ValidationRuleSet.GetDefaultRuleSet();
 
         return await ArazzoModelFactory.LoadFormUrlAsync(
-            Path.Combine(GetSamplesDirectory(), "OperationResolution", fileName),
+            Path.Combine(GetSamplesDirectory(), Path.Join("OperationResolution", safeFileName)),
             settings,
             TestContext.Current.CancellationToken);
     }
@@ -51,7 +52,7 @@ public class ArazzoOperationResolutionValidatorTests
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null)
         {
-            var samplesDirectory = Path.Combine(directory.FullName, "tests", "lib", "Samples");
+            var samplesDirectory = Path.Combine(directory.FullName, Path.Join("tests", "lib", "Samples"));
             if (Directory.Exists(samplesDirectory))
             {
                 return samplesDirectory;
@@ -60,7 +61,7 @@ public class ArazzoOperationResolutionValidatorTests
             directory = directory.Parent;
         }
 
-        return Path.Combine(AppContext.BaseDirectory, "Samples");
+        return Path.Join(AppContext.BaseDirectory, "Samples");
     }
 
     private static bool IsOperationResolutionError(OpenApiError error)
