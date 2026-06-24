@@ -182,6 +182,39 @@ public class ArazzoStepTests
     }
 
     [Fact]
+    public void SerializeAsV1_WithQueryOperationPath_ShouldWriteCorrectJson()
+    {
+        var step = new ArazzoStep
+        {
+            StepId = "queryOperationPathStep",
+            OperationPath = "{$sourceDescriptions.source1.url}#/paths/~1somePath/query"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        step.SerializeAsV1(writer);
+        var jsonResultObject = JsonNode.Parse(textWriter.ToString());
+
+        Assert.Equal("{$sourceDescriptions.source1.url}#/paths/~1somePath/query", jsonResultObject?[ArazzoConstants.ArazzoStepOperationPath]?.GetValue<string>());
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithInvalidOperationOption_ShouldThrowArazzoSerializationException()
+    {
+        var step = new ArazzoStep
+        {
+            StepId = "invalidOperationOptionStep",
+            OperationPath = "{$sourceDescriptions.source1.url}#/paths/~1somePath/invalid"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => step.SerializeAsV1(writer));
+
+        Assert.Contains("must reference a sourceDescription URL runtime expression followed by a JSON Pointer to an operation path", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void Deserialize_WithPlainOperationPath_AddsDiagnosticError()
     {
         var json = """
@@ -196,6 +229,23 @@ public class ArazzoStepTests
         ArazzoV1Deserializer.LoadStep(jsonNode, parsingContext);
 
         Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("must reference a sourceDescription URL runtime expression followed by a JSON Pointer to an operation path", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Deserialize_WithQueryOperationPath_ShouldNotAddDiagnosticError()
+    {
+        var json = """
+        {
+            "stepId": "queryOperationPathStep",
+            "operationPath": "{$sourceDescriptions.source1.url}#/paths/~1somePath/query"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        ArazzoV1Deserializer.LoadStep(jsonNode, parsingContext);
+
+        Assert.DoesNotContain(parsingContext.Diagnostic.Errors, error => error.Message.Contains("operationPath", StringComparison.Ordinal));
     }
 
     [Fact]

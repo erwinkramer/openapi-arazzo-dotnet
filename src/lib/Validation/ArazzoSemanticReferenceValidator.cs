@@ -12,7 +12,7 @@ internal static partial class ArazzoSemanticReferenceValidator
     [GeneratedRegex(@"\$sourceDescriptions\.([^\.\}\s#]+)\.url", RegexOptions.CultureInvariant)]
     private static partial Regex SourceDescriptionUrlExpressionRegex();
 
-    [GeneratedRegex(@"^\{\$sourceDescriptions\.([^\.\}\s#]+)\.url\}(#/paths/(?:[^~/]|~[01])+/(?:get|put|post|delete|options|head|patch|trace))$", RegexOptions.CultureInvariant)]
+    [GeneratedRegex(@"^\{\$sourceDescriptions\.([^\.\}\s#]+)\.url\}(#/paths/(?:[^~/]|~[01])+/(?:get|put|post|delete|options|head|patch|trace|query))$", RegexOptions.CultureInvariant)]
     private static partial Regex OperationPathRegex();
 
     [GeneratedRegex(@"^\$sourceDescriptions\.([^\.\s#]+)\.(.+)$", RegexOptions.CultureInvariant)]
