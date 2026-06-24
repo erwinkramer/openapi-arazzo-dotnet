@@ -93,8 +93,8 @@ public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
         ArgumentNullException.ThrowIfNull(writer);
 
         ArgumentException.ThrowIfNullOrEmpty(StepId);
-        ValidateOperationReferenceFields();
         ValidateRequestBodyApplicability();
+        ValidateOperationReferenceFields();
         ValidateParameters();
         ValidateActions();
         ArazzoKeyValidator.ValidateSerializationKeys(Outputs?.Keys, $"{nameof(ArazzoStep)}.{nameof(Outputs)}");
@@ -203,7 +203,7 @@ public class ArazzoStep : IArazzoExtensible, IArazzoSerializable
     }
 
     internal bool CanHaveRequestBody() =>
-        CountTargetFields() == 1 && IsOperationTargeted();
+        IsOperationTargeted();
 
     private void ValidateActions()
     {
