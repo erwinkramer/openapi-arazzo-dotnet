@@ -145,7 +145,7 @@ public class ArazzoStepTests
         var step = new ArazzoStep
         {
             StepId = "step1",
-            OperationPath = "/users/{id}"
+            OperationPath = "{$sourceDescriptions.source1.url}#/paths/~1users~1{id}/get"
         };
         using var textWriter = new StringWriter();
         var writer = new OpenApiJsonWriter(textWriter);
@@ -154,7 +154,7 @@ public class ArazzoStepTests
         """
         {
             "stepId": "step1",
-            "operationPath": "/users/{id}"
+            "operationPath": "{$sourceDescriptions.source1.url}#/paths/~1users~1{id}/get"
         }
         """;
 
@@ -163,6 +163,39 @@ public class ArazzoStepTests
         var expectedJsonObject = JsonNode.Parse(expectedJson);
 
         Assert.True(JsonNode.DeepEquals(jsonResultObject, expectedJsonObject), "Serialized JSON does not match expected output.");
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithPlainOperationPath_ShouldThrowArazzoSerializationException()
+    {
+        var step = new ArazzoStep
+        {
+            StepId = "plainOperationPathStep",
+            OperationPath = "/users/{id}"
+        };
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        var exception = Assert.Throws<ArazzoSerializationException>(() => step.SerializeAsV1(writer));
+
+        Assert.Contains("must reference a sourceDescription URL runtime expression followed by a JSON Pointer to an operation path", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Deserialize_WithPlainOperationPath_AddsDiagnosticError()
+    {
+        var json = """
+        {
+            "stepId": "plainOperationPathStep",
+            "operationPath": "/users/{id}"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        ArazzoV1Deserializer.LoadStep(jsonNode, parsingContext);
+
+        Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("must reference a sourceDescription URL runtime expression followed by a JSON Pointer to an operation path", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -243,7 +276,7 @@ public class ArazzoStepTests
         {
             StepId = "conflictingStep",
             OperationId = "getUser",
-            OperationPath = "$sourceDescriptions.source1.url#/paths/~1users/get"
+            OperationPath = "{$sourceDescriptions.source1.url}#/paths/~1users/get"
         };
         using var textWriter = new StringWriter();
         var writer = new OpenApiJsonWriter(textWriter);
@@ -277,7 +310,7 @@ public class ArazzoStepTests
         {
             StepId = "conflictingStep",
             WorkflowId = "childWorkflow",
-            OperationPath = "$sourceDescriptions.source1.url#/paths/~1users/get"
+            OperationPath = "{$sourceDescriptions.source1.url}#/paths/~1users/get"
         };
         using var textWriter = new StringWriter();
         var writer = new OpenApiJsonWriter(textWriter);
@@ -504,7 +537,7 @@ public class ArazzoStepTests
         {
             "stepId": "conflictingStep",
             "workflowId": "childWorkflow",
-            "operationPath": "$sourceDescriptions.source1.url#/paths/~1users/get"
+            "operationPath": "{$sourceDescriptions.source1.url}#/paths/~1users/get"
         }
         """;
         var jsonNode = JsonNode.Parse(json)!;
