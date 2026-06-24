@@ -196,7 +196,7 @@ internal class ArazzoWorkspace
         {
             foreach (var operation in path.Value.Operations ?? [])
             {
-                operationPointers.Add($"#/paths/{EscapePointerSegment(path.Key)}/{operation.Key.Method.ToLowerInvariant()}");
+                operationPointers.Add(ArazzoStep.BuildOperationPointer(path.Key, operation.Key.Method));
                 if (!string.IsNullOrEmpty(operation.Value.OperationId))
                 {
                     operationIdCounts[operation.Value.OperationId] = operationIdCounts.GetValueOrDefault(operation.Value.OperationId) + 1;
@@ -621,8 +621,4 @@ internal class ArazzoWorkspace
         return fragment.StartsWith("#", StringComparison.Ordinal) ? fragment : $"#{fragment}";
     }
 
-    private static string EscapePointerSegment(string segment)
-    {
-        return segment.Replace("~", "~0", StringComparison.Ordinal).Replace("/", "~1", StringComparison.Ordinal);
-    }
 }

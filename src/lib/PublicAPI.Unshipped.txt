@@ -414,6 +414,7 @@ BinkyLabs.OpenApi.Arazzo.ArazzoSpecVersion
 BinkyLabs.OpenApi.Arazzo.ArazzoSpecVersion.Arazzo1_0 = 0 -> BinkyLabs.OpenApi.Arazzo.ArazzoSpecVersion
 BinkyLabs.OpenApi.Arazzo.ArazzoStep
 BinkyLabs.OpenApi.Arazzo.ArazzoStep.ArazzoStep() -> void
+static BinkyLabs.OpenApi.Arazzo.ArazzoStep.BuildOperationPointer(string! pathItem, string! httpMethod) -> string!
 BinkyLabs.OpenApi.Arazzo.ArazzoStep.Description.get -> string?
 BinkyLabs.OpenApi.Arazzo.ArazzoStep.Description.set -> void
 BinkyLabs.OpenApi.Arazzo.ArazzoStep.Extensions.get -> System.Collections.Generic.IDictionary<string!, BinkyLabs.OpenApi.Arazzo.IArazzoExtension!>?
