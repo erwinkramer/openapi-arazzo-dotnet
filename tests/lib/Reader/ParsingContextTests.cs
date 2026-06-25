@@ -756,6 +756,81 @@ public class ParsingContextTests
         Assert.DoesNotContain(ctx.Diagnostic.Errors, e => e.Message.Contains("unknown", StringComparison.OrdinalIgnoreCase) || e.Message.Contains("does not resolve", StringComparison.OrdinalIgnoreCase));
     }
 
+    [Theory]
+    [InlineData("""{ "stepId": "step1", "operationPath": "{$sourceDescriptions.someArazzo.url}#/paths/~1pets/get" }""", "operationPath '{$sourceDescriptions.someArazzo.url}#/paths/~1pets/get' references sourceDescription 'someArazzo' with type 'arazzo'")]
+    [InlineData("""{ "stepId": "step1", "operationId": "$sourceDescriptions.someArazzo.someOperation" }""", "operationId '$sourceDescriptions.someArazzo.someOperation' references sourceDescription 'someArazzo' with type 'arazzo'")]
+    public void Parse_OperationReferenceToArazzoSourceDescription_AddsDiagnosticError(string stepJson, string expectedMessage)
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse($$"""
+            {
+              "arazzo": "1.0.0",
+              "info": { "title": "T", "version": "1" },
+              "sourceDescriptions": [
+                {
+                  "name": "source1",
+                  "url": "https://example.com/api",
+                  "type": "openapi"
+                },
+                {
+                  "name": "someArazzo",
+                  "url": "https://example.com/other.arazzo",
+                  "type": "arazzo"
+                }
+              ],
+              "workflows": [
+                {
+                  "workflowId": "wf",
+                  "steps": [{{stepJson}}]
+                }
+              ]
+            }
+            """)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.Contains(ctx.Diagnostic.Errors, e => e.Message.Contains(expectedMessage, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void Parse_UnqualifiedOperationIdWithOpenApiAndArazzoSourceDescriptions_DoesNotAddAmbiguityDiagnostic()
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse("""
+            {
+              "arazzo": "1.0.0",
+              "info": { "title": "T", "version": "1" },
+              "sourceDescriptions": [
+                {
+                  "name": "source1",
+                  "url": "https://example.com/api",
+                  "type": "openapi"
+                },
+                {
+                  "name": "someArazzo",
+                  "url": "https://example.com/other.arazzo",
+                  "type": "arazzo"
+                }
+              ],
+              "workflows": [
+                {
+                  "workflowId": "wf",
+                  "steps": [
+                    {
+                      "stepId": "step1",
+                      "operationId": "someOperation"
+                    }
+                  ]
+                }
+              ]
+            }
+            """)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.DoesNotContain(ctx.Diagnostic.Errors, e => e.Message.Contains("operationId 'someOperation' is ambiguous", StringComparison.Ordinal));
+    }
+
     [Fact]
     public void Parse_MissingVersion_ThrowsOpenApiException()
     {
