@@ -339,7 +339,6 @@ public class ParsingContext
             foreach (var step in workflow.Steps ?? [])
             {
                 ValidateParameterRequiredFields(step.Parameters);
-                ValidatePayloadReplacementRequiredFields(step.RequestBody?.Replacements);
                 ValidateActionRequiredFields<ArazzoSuccessAction, IArazzoSuccessAction, ArazzoSuccessType>(step.OnSuccess, nameof(ArazzoSuccessAction));
                 ValidateActionRequiredFields<ArazzoFailureAction, IArazzoFailureAction, ArazzoFailureType>(step.OnFailure, nameof(ArazzoFailureAction));
             }
@@ -374,15 +373,6 @@ public class ParsingContext
         {
             AddRequiredFieldErrorIfMissing(parameter.Name, nameof(ArazzoParameter), nameof(ArazzoParameter.Name));
             AddRequiredFieldErrorIfMissing(parameter.Value, nameof(ArazzoParameter), nameof(ArazzoParameter.Value));
-        }
-    }
-
-    private void ValidatePayloadReplacementRequiredFields(IEnumerable<ArazzoPayloadReplacement>? replacements)
-    {
-        foreach (var replacement in replacements ?? [])
-        {
-            AddRequiredFieldErrorIfMissing(replacement.Target, nameof(ArazzoPayloadReplacement), nameof(ArazzoPayloadReplacement.Target));
-            AddRequiredFieldErrorIfMissing(replacement.Value, nameof(ArazzoPayloadReplacement), nameof(ArazzoPayloadReplacement.Value));
         }
     }
 

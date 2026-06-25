@@ -348,6 +348,47 @@ public class ParsingContextTests
     }
 
     [Theory]
+    [InlineData("""{ "value": "updated" }""", "ArazzoPayloadReplacement.Target is a REQUIRED field")]
+    [InlineData("""{ "target": "", "value": "updated" }""", "ArazzoPayloadReplacement.Target is a REQUIRED field")]
+    [InlineData("""{ "target": "/name" }""", "ArazzoPayloadReplacement.Value is a REQUIRED field")]
+    public void Parse_PayloadReplacementMissingRequiredFields_AddsSingleDiagnosticError(string replacementJson, string expectedMessage)
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse($$"""
+            {
+              "arazzo": "1.0.0",
+              "info": { "title": "T", "version": "1" },
+              "sourceDescriptions": [
+                {
+                  "name": "source1",
+                  "url": "https://example.com/api"
+                }
+              ],
+              "workflows": [
+                {
+                  "workflowId": "wf",
+                  "steps": [
+                    {
+                      "stepId": "step1",
+                      "operationId": "getPet",
+                      "requestBody": {
+                        "replacements": [
+                          {{replacementJson}}
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+            """)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.Single(ctx.Diagnostic.Errors, e => e.Message.Contains(expectedMessage, StringComparison.Ordinal));
+    }
+
+    [Theory]
     [InlineData("""{ "operationId": "getPet" }""")]
     [InlineData("""{ "stepId": "", "operationId": "getPet" }""")]
     public void ParseFragment_MissingOrEmptyStepId_AddsDiagnosticError(string json)

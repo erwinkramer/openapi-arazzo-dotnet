@@ -96,4 +96,18 @@ public class ArazzoPayloadReplacementTests
 
         Assert.Contains(parsingContext.Diagnostic.Errors, error => error.Message.Contains("ArazzoPayloadReplacement.Value contains an invalid runtime expression", StringComparison.Ordinal));
     }
+
+    [Theory]
+    [InlineData("""{ "value": "updated" }""", "ArazzoPayloadReplacement.Target is a REQUIRED field")]
+    [InlineData("""{ "target": "", "value": "updated" }""", "ArazzoPayloadReplacement.Target is a REQUIRED field")]
+    [InlineData("""{ "target": "/name" }""", "ArazzoPayloadReplacement.Value is a REQUIRED field")]
+    public void ParseFragment_MissingRequiredFields_AddsDiagnosticError(string json, string expectedMessage)
+    {
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        parsingContext.ParseFragment<ArazzoPayloadReplacement>(jsonNode, ArazzoSpecVersion.Arazzo1_0);
+
+        Assert.Single(parsingContext.Diagnostic.Errors, error => error.Message.Contains(expectedMessage, StringComparison.Ordinal));
+    }
 }
