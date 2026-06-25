@@ -86,11 +86,6 @@ internal static partial class ArazzoSemanticReferenceValidator
                 .Select(static workflow => workflow.WorkflowId)
                 .OfType<string>() ?? [],
             StringComparer.Ordinal);
-        var sourceDescriptionNames = new HashSet<string>(
-            document.SourceDescriptions?
-                .Select(static sourceDescription => sourceDescription.Name)
-                .OfType<string>() ?? [],
-            StringComparer.Ordinal);
         var sourceDescriptionTypes = new Dictionary<string, ArazzoDescriptionType?>(StringComparer.Ordinal);
         foreach (var sourceDescription in document.SourceDescriptions ?? [])
         {
@@ -100,6 +95,11 @@ internal static partial class ArazzoSemanticReferenceValidator
             }
         }
 
+        var sourceDescriptionNames = sourceDescriptionTypes.Keys.ToHashSet(StringComparer.Ordinal);
+        var nonArazzoSourceDescriptionNames = sourceDescriptionTypes
+            .Where(static sourceDescription => sourceDescription.Value is not ArazzoDescriptionType.Arazzo)
+            .Select(static sourceDescription => sourceDescription.Key)
+            .ToHashSet(StringComparer.Ordinal);
         var nonArazzoSourceDescriptionCount = document.SourceDescriptions?
             .Count(static sourceDescription => sourceDescription.Type is not ArazzoDescriptionType.Arazzo) ?? 0;
 
@@ -123,12 +123,12 @@ internal static partial class ArazzoSemanticReferenceValidator
                     yield return error;
                 }
 
-                foreach (var error in ValidateOperationPathSourceDescriptions(step.OperationPath, sourceDescriptionNames, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'"))
+                foreach (var error in ValidateOperationPathSourceDescriptions(step.OperationPath, sourceDescriptionNames, nonArazzoSourceDescriptionNames, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'"))
                 {
                     yield return error;
                 }
 
-                foreach (var error in ValidateOperationIdSourceDescriptions(step.OperationId, sourceDescriptionNames, nonArazzoSourceDescriptionCount, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'"))
+                foreach (var error in ValidateOperationIdSourceDescriptions(step.OperationId, sourceDescriptionNames, nonArazzoSourceDescriptionNames, nonArazzoSourceDescriptionCount, $"Workflow '{workflow.WorkflowId}' step '{step.StepId}'"))
                 {
                     yield return error;
                 }
@@ -294,16 +294,21 @@ internal static partial class ArazzoSemanticReferenceValidator
         }
     }
 
-    private static IEnumerable<string> ValidateOperationPathSourceDescriptions(string? operationPath, ISet<string> sourceDescriptionNames, string elementName)
+    private static IEnumerable<string> ValidateOperationPathSourceDescriptions(
+        string? operationPath,
+        ISet<string> sourceDescriptionNames,
+        ISet<string> nonArazzoSourceDescriptionNames,
+        string elementName)
     {
         return string.IsNullOrEmpty(operationPath)
             ? []
-            : ValidateSourceDescriptionExpressions(operationPath, sourceDescriptionNames, elementName);
+            : ValidateSourceDescriptionExpressions(operationPath, sourceDescriptionNames, nonArazzoSourceDescriptionNames, elementName, "operationPath");
     }
 
     private static IEnumerable<string> ValidateOperationIdSourceDescriptions(
         string? operationId,
         ISet<string> sourceDescriptionNames,
+        ISet<string> nonArazzoSourceDescriptionNames,
         int nonArazzoSourceDescriptionCount,
         string elementName)
     {
@@ -326,6 +331,10 @@ internal static partial class ArazzoSemanticReferenceValidator
             {
                 yield return $"{elementName} references unknown sourceDescription '{sourceDescriptionName}'.";
             }
+            else if (!nonArazzoSourceDescriptionNames.Contains(sourceDescriptionName))
+            {
+                yield return $"{elementName} operationId '{operationId}' references sourceDescription '{sourceDescriptionName}' with type 'arazzo'; operationId must target an OpenAPI sourceDescription.";
+            }
 
             yield break;
         }
@@ -336,13 +345,26 @@ internal static partial class ArazzoSemanticReferenceValidator
         }
     }
 
-    private static IEnumerable<string> ValidateSourceDescriptionExpressions(string value, ISet<string> sourceDescriptionNames, string elementName)
+    private static IEnumerable<string> ValidateSourceDescriptionExpressions(
+        string value,
+        ISet<string> sourceDescriptionNames,
+        ISet<string> nonArazzoSourceDescriptionNames,
+        string elementName,
+        string fieldName)
     {
-        return SourceDescriptionUrlExpressionRegex()
-                .Matches(value)
-                .Select(static match => match.Groups[1].Value)
-                .Where(sourceDescriptionName => !sourceDescriptionNames.Contains(sourceDescriptionName))
-                .Select(x => $"{elementName} references unknown sourceDescription '{x}'.");
+        foreach (var sourceDescriptionName in SourceDescriptionUrlExpressionRegex()
+            .Matches(value)
+            .Select(static match => match.Groups[1].Value))
+        {
+            if (!sourceDescriptionNames.Contains(sourceDescriptionName))
+            {
+                yield return $"{elementName} references unknown sourceDescription '{sourceDescriptionName}'.";
+            }
+            else if (!nonArazzoSourceDescriptionNames.Contains(sourceDescriptionName))
+            {
+                yield return $"{elementName} {fieldName} '{value}' references sourceDescription '{sourceDescriptionName}' with type 'arazzo'; {fieldName} must target an OpenAPI sourceDescription.";
+            }
+        }
     }
 
     private static IEnumerable<string> ValidateOperationReferenceResolution(ArazzoStep step, ArazzoDocument document, string elementName)

@@ -293,6 +293,16 @@ public class ArazzoDocumentTests
         ];
         yield return
         [
+            CreateDocument(new ArazzoStep { StepId = "step1", OperationPath = "{$sourceDescriptions.external.url}#/paths/~1pets/get" }),
+            "operationPath '{$sourceDescriptions.external.url}#/paths/~1pets/get' references sourceDescription 'external' with type 'arazzo'"
+        ];
+        yield return
+        [
+            CreateDocument(new ArazzoStep { StepId = "step1", OperationId = "$sourceDescriptions.external.someOperation" }),
+            "operationId '$sourceDescriptions.external.someOperation' references sourceDescription 'external' with type 'arazzo'"
+        ];
+        yield return
+        [
             CreateDocument(new ArazzoStep { StepId = "step1" }, dependsOn: new HashSet<string> { "missingWorkflow" }),
             "dependsOn references unknown workflowId 'missingWorkflow'"
         ];
@@ -366,6 +376,19 @@ public class ArazzoDocumentTests
         var json = JsonNode.Parse(textWriter.ToString())!;
 
         Assert.Equal("$sourceDescriptions.source2.getUser", json["workflows"]?[0]?["steps"]?[0]?["operationId"]?.GetValue<string>());
+    }
+
+    [Fact]
+    public void SerializeAsV1_WithQualifiedOperationIdTargetingOpenApiSourceDescription_ShouldSerialize()
+    {
+        var document = CreateDocument(new ArazzoStep { StepId = "step1", OperationId = "$sourceDescriptions.source1.getUser" });
+        using var textWriter = new StringWriter();
+        var writer = new OpenApiJsonWriter(textWriter);
+
+        document.SerializeAsV1(writer);
+        var json = JsonNode.Parse(textWriter.ToString())!;
+
+        Assert.Equal("$sourceDescriptions.source1.getUser", json["workflows"]?[0]?["steps"]?[0]?["operationId"]?.GetValue<string>());
     }
 
     [Fact]
