@@ -278,15 +278,12 @@ public class ParsingContext
             else
             {
                 ValidateUniqueWorkflowIds(doc.Workflows);
-                ValidateStepRequiredFields(doc.Workflows);
-                ValidateWorkflowActionRequiredFields(doc.Workflows);
                 ValidateWorkflowStepIds(doc.Workflows);
                 ValidateStepOperationReferenceFields(doc.Workflows);
                 ValidateResultActionReferenceFields(doc.Workflows);
                 ArazzoSemanticReferenceValidator.ValidateDeserialization(doc, this);
             }
 
-            ValidateComponentRequiredFields(doc.Components);
             ValidateWorkflowParameters(doc);
         }
     }
@@ -301,52 +298,6 @@ public class ParsingContext
         if (string.IsNullOrEmpty(info.Version))
         {
             Diagnostic.Errors.Add(new OpenApiError("", $"Info.Version is a REQUIRED field at {GetLocation()}"));
-        }
-    }
-
-    private void ValidateStepRequiredFields(IEnumerable<ArazzoWorkflow> workflows)
-    {
-        foreach (var workflow in workflows)
-        {
-            foreach (var step in workflow.Steps ?? [])
-            {
-                ValidateParameterRequiredFields(step.Parameters);
-            }
-        }
-    }
-
-    private void ValidateWorkflowActionRequiredFields(IEnumerable<ArazzoWorkflow> workflows)
-    {
-        foreach (var workflow in workflows)
-        {
-            ValidateParameterRequiredFields(workflow.Parameters);
-        }
-    }
-
-    private void ValidateComponentRequiredFields(ArazzoComponent? components)
-    {
-        if (components is null)
-        {
-            return;
-        }
-
-        ValidateParameterRequiredFields(components.Parameters?.Values);
-    }
-
-    private void ValidateParameterRequiredFields(IEnumerable<IArazzoParameter>? parameters)
-    {
-        foreach (var parameter in (parameters ?? []).OfType<ArazzoParameter>())
-        {
-            AddRequiredFieldErrorIfMissing(parameter.Name, nameof(ArazzoParameter), nameof(ArazzoParameter.Name));
-            AddRequiredFieldErrorIfMissing(parameter.Value, nameof(ArazzoParameter), nameof(ArazzoParameter.Value));
-        }
-    }
-
-    private void AddRequiredFieldErrorIfMissing(object? value, string elementName, string fieldName)
-    {
-        if (value is null || value is string stringValue && string.IsNullOrEmpty(stringValue))
-        {
-            Diagnostic.Errors.Add(new OpenApiError("", $"{elementName}.{fieldName} is a REQUIRED field."));
         }
     }
 

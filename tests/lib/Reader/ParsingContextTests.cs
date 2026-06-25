@@ -462,6 +462,65 @@ public class ParsingContextTests
     }
 
     [Theory]
+    [InlineData("""{ "value": "1" }""", "ArazzoParameter.Name is a REQUIRED field")]
+    [InlineData("""{ "name": "", "value": "1" }""", "ArazzoParameter.Name is a REQUIRED field")]
+    [InlineData("""{ "name": "id" }""", "ArazzoParameter.Value is a REQUIRED field")]
+    public void ParseFragment_MissingOrEmptyParameterRequiredFields_AddsDiagnosticError(string json, string expectedMessage)
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse(json)!;
+
+        ctx.ParseFragment<ArazzoParameter>(jsonNode, ArazzoSpecVersion.Arazzo1_0);
+
+        Assert.Contains(ctx.Diagnostic.Errors, e => e.Message.Contains(expectedMessage, StringComparison.Ordinal));
+    }
+
+    [Theory]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "parameters": [{ "value": "1" }], "steps": [{ "stepId": "step1", "operationId": "getPet" }] }] }""", "ArazzoParameter.Name is a REQUIRED field")]
+    [InlineData("""{ "arazzo": "1.0.0", "info": { "title": "T", "version": "1" }, "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }], "workflows": [{ "workflowId": "wf", "parameters": [{ "name": "id" }], "steps": [{ "stepId": "step1", "operationId": "getPet" }] }] }""", "ArazzoParameter.Value is a REQUIRED field")]
+    public void Parse_MissingParameterRequiredFields_AddsSingleDiagnosticError(string json, string expectedMessage)
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse(json)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.Equal(1, ctx.Diagnostic.Errors.Count(e => e.Message.Contains(expectedMessage, StringComparison.Ordinal)));
+    }
+
+    [Fact]
+    public void Parse_ParameterReusableReference_DoesNotRequireNameOrValue()
+    {
+        var ctx = CreateContext();
+        var jsonNode = JsonNode.Parse(
+            """
+            {
+              "arazzo": "1.0.0",
+              "info": { "title": "T", "version": "1" },
+              "sourceDescriptions": [{ "name": "source1", "url": "https://example.com/api" }],
+              "workflows": [{
+                "workflowId": "wf",
+                "steps": [{
+                  "stepId": "step1",
+                  "operationId": "getPet",
+                  "parameters": [{ "reference": "$components.parameters.shared" }]
+                }]
+              }],
+              "components": {
+                "parameters": {
+                  "shared": { "name": "id", "in": "query", "value": "1" }
+                }
+              }
+            }
+            """)!;
+
+        ctx.Parse(jsonNode, new Uri("https://example.com/"));
+
+        Assert.DoesNotContain(ctx.Diagnostic.Errors, e => e.Message.Contains("ArazzoParameter.Name is a REQUIRED field", StringComparison.Ordinal));
+        Assert.DoesNotContain(ctx.Diagnostic.Errors, e => e.Message.Contains("ArazzoParameter.Value is a REQUIRED field", StringComparison.Ordinal));
+    }
+
+    [Theory]
     [InlineData("""{ "type": "goto", "stepId": "step1" }""", "ArazzoSuccessAction.Name is a REQUIRED field")]
     [InlineData("""{ "name": "", "type": "goto", "stepId": "step1" }""", "ArazzoSuccessAction.Name is a REQUIRED field")]
     [InlineData("""{ "name": "goto", "stepId": "step1" }""", "ArazzoSuccessAction.Type is a REQUIRED field")]
