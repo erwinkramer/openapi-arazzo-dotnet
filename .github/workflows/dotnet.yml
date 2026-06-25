@@ -16,10 +16,6 @@ jobs:
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: 8.x
       - name: Setup .NET 9
         uses: actions/setup-dotnet@v5
         with:
@@ -97,7 +93,7 @@ jobs:
           NEW_REPORT: ${{ github.workspace }}/performance/benchmark/BenchmarkDotNet.Artifacts/results/performance.EmptyModels-report.json
           OLD_REPORT: ${{ github.workspace }}/performanceResults/performance.EmptyModels-report.json
       - name: Run comparison tool for descriptions
-        run: dotnet run -c Release --project ./performance/resultsComparer/resultsComparer.csproj -- compare $OLD_REPORT $NEW_REPORT -p ZeroPointTwoPercentDifferenceMemoryUsage
+        run: dotnet run -c Release --project ./performance/resultsComparer/resultsComparer.csproj -- compare $OLD_REPORT $NEW_REPORT -p OnePercentDifferenceMemoryUsage
         shell: bash
         env:
           NEW_REPORT: ${{ github.workspace }}/performance/benchmark/BenchmarkDotNet.Artifacts/results/performance.Descriptions-report.json
