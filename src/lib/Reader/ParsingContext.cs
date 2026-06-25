@@ -311,8 +311,6 @@ public class ParsingContext
             foreach (var step in workflow.Steps ?? [])
             {
                 ValidateParameterRequiredFields(step.Parameters);
-                ValidateActionRequiredFields<ArazzoSuccessAction, IArazzoSuccessAction, ArazzoSuccessType>(step.OnSuccess, nameof(ArazzoSuccessAction));
-                ValidateActionRequiredFields<ArazzoFailureAction, IArazzoFailureAction, ArazzoFailureType>(step.OnFailure, nameof(ArazzoFailureAction));
             }
         }
     }
@@ -322,8 +320,6 @@ public class ParsingContext
         foreach (var workflow in workflows)
         {
             ValidateParameterRequiredFields(workflow.Parameters);
-            ValidateActionRequiredFields<ArazzoSuccessAction, IArazzoSuccessAction, ArazzoSuccessType>(workflow.SuccessActions, nameof(ArazzoSuccessAction));
-            ValidateActionRequiredFields<ArazzoFailureAction, IArazzoFailureAction, ArazzoFailureType>(workflow.FailureActions, nameof(ArazzoFailureAction));
         }
     }
 
@@ -335,8 +331,6 @@ public class ParsingContext
         }
 
         ValidateParameterRequiredFields(components.Parameters?.Values);
-        ValidateActionRequiredFields<ArazzoSuccessAction, ArazzoSuccessAction, ArazzoSuccessType>(components.SuccessActions?.Values, nameof(ArazzoSuccessAction));
-        ValidateActionRequiredFields<ArazzoFailureAction, ArazzoFailureAction, ArazzoFailureType>(components.FailureActions?.Values, nameof(ArazzoFailureAction));
     }
 
     private void ValidateParameterRequiredFields(IEnumerable<IArazzoParameter>? parameters)
@@ -345,18 +339,6 @@ public class ParsingContext
         {
             AddRequiredFieldErrorIfMissing(parameter.Name, nameof(ArazzoParameter), nameof(ArazzoParameter.Name));
             AddRequiredFieldErrorIfMissing(parameter.Value, nameof(ArazzoParameter), nameof(ArazzoParameter.Value));
-        }
-    }
-
-    private void ValidateActionRequiredFields<TAction, TInterface, TType>(IEnumerable<TInterface>? actions, string elementName)
-        where TAction : class, IArazzoResultAction<TType>
-        where TInterface : IArazzoResultAction<TType>
-        where TType : struct, Enum
-    {
-        foreach (var action in (actions ?? []).OfType<TAction>())
-        {
-            AddRequiredFieldErrorIfMissing(action.Name, elementName, nameof(IArazzoResultAction.Name));
-            AddRequiredFieldErrorIfMissing(action.Type, elementName, nameof(IArazzoResultAction<ArazzoSuccessType>.Type));
         }
     }
 
