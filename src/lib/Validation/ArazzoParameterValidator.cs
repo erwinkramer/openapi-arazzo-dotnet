@@ -1,3 +1,5 @@
+using BinkyLabs.OpenApi.Arazzo.Reader;
+
 using Microsoft.OpenApi;
 
 namespace BinkyLabs.OpenApi.Arazzo.Validation;
@@ -45,6 +47,20 @@ internal static class ArazzoParameterValidator
             {
                 yield return $"{elementName} parameter '{parameterName}' must specify 'in' {locationRequirementReason}.";
             }
+        }
+    }
+
+    internal static void ValidateDeserializationRequiredFields(ArazzoParameter parameter, ParsingContext context)
+    {
+        AddRequiredFieldErrorIfMissing(parameter.Name, nameof(ArazzoParameter), nameof(ArazzoParameter.Name), context);
+        AddRequiredFieldErrorIfMissing(parameter.Value, nameof(ArazzoParameter), nameof(ArazzoParameter.Value), context);
+    }
+
+    private static void AddRequiredFieldErrorIfMissing(object? value, string elementName, string fieldName, ParsingContext context)
+    {
+        if (value is null || value is string stringValue && string.IsNullOrEmpty(stringValue))
+        {
+            context.Diagnostic.Errors.Add(new OpenApiError(context.GetLocation(), $"{elementName}.{fieldName} is a REQUIRED field."));
         }
     }
 

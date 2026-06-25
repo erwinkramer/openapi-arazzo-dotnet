@@ -56,6 +56,7 @@ internal static partial class ArazzoV1Deserializer
         var parameter = new ArazzoParameter();
         mapNode.ParseMap(parameter, ParameterFixedFields, ParameterPatternFields, context);
         ArazzoRuntimeExpressionValidator.ValidateDeserializationExpressionStrings(parameter.Value, context, $"{nameof(ArazzoParameter)}.{nameof(ArazzoParameter.Value)}");
+        ArazzoParameterValidator.ValidateDeserializationRequiredFields(parameter, context);
 
         return parameter;
     }

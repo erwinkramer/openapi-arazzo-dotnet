@@ -129,6 +129,8 @@ public class ArazzoParameterTests
 
         Assert.Equal("$components.parameters.shared", parameter.Reference.ReferenceV1);
         Assert.Equal("25", parameter.Value?.GetValue<string>());
+        Assert.DoesNotContain(parsingContext.Diagnostic.Errors, error => error.Message.Contains("ArazzoParameter.Name is a REQUIRED field", StringComparison.Ordinal));
+        Assert.DoesNotContain(parsingContext.Diagnostic.Errors, error => error.Message.Contains("ArazzoParameter.Value is a REQUIRED field", StringComparison.Ordinal));
     }
 
     [Theory]
