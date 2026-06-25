@@ -216,6 +216,25 @@ public class ArazzoDocumentTests
         ];
         yield return
         [
+            CreateDocument(new ArazzoStep { StepId = "step1", WorkflowId = "$sourceDescriptions.source1.externalWorkflow" }),
+            "workflowId value '$sourceDescriptions.source1.externalWorkflow' references sourceDescription 'source1' whose type must be 'arazzo'"
+        ];
+        yield return
+        [
+            CreateDocument(
+                new ArazzoStep { StepId = "step1", WorkflowId = "$sourceDescriptions.source1.externalWorkflow" },
+                sourceDescriptions:
+                [
+                    new ArazzoSourceDescription
+                    {
+                        Name = "source1",
+                        Url = new Uri("https://example.com/api")
+                    }
+                ]),
+            "workflowId value '$sourceDescriptions.source1.externalWorkflow' references sourceDescription 'source1' whose type must be 'arazzo'"
+        ];
+        yield return
+        [
             CreateDocument(
                 new ArazzoStep { StepId = "step1", OperationId = "getUser" },
                 successActions: [new ArazzoSuccessAction { Name = "goto", Type = ArazzoSuccessType.Goto, StepId = "missingStep" }]),
@@ -231,6 +250,13 @@ public class ArazzoDocumentTests
         yield return
         [
             CreateDocument(
+                new ArazzoStep { StepId = "step1", OperationId = "getUser" },
+                successActions: [new ArazzoSuccessAction { Name = "goto", Type = ArazzoSuccessType.Goto, WorkflowId = "$sourceDescriptions.source1.externalWorkflow" }]),
+            "workflowId value '$sourceDescriptions.source1.externalWorkflow' references sourceDescription 'source1' whose type must be 'arazzo'"
+        ];
+        yield return
+        [
+            CreateDocument(
                 new ArazzoStep
                 {
                     StepId = "step1",
@@ -238,6 +264,17 @@ public class ArazzoDocumentTests
                     OnFailure = [new ArazzoFailureAction { Name = "retry", Type = ArazzoFailureType.Retry, WorkflowId = "$steps.step1" }]
                 }),
             "workflowId value '$steps.step1' must reference an external workflow using '$sourceDescriptions.<name>.<workflowId>'"
+        ];
+        yield return
+        [
+            CreateDocument(
+                new ArazzoStep
+                {
+                    StepId = "step1",
+                    OperationId = "getUser",
+                    OnFailure = [new ArazzoFailureAction { Name = "retry", Type = ArazzoFailureType.Retry, WorkflowId = "$sourceDescriptions.source1.externalWorkflow" }]
+                }),
+            "workflowId value '$sourceDescriptions.source1.externalWorkflow' references sourceDescription 'source1' whose type must be 'arazzo'"
         ];
         yield return
         [
@@ -263,6 +300,11 @@ public class ArazzoDocumentTests
         [
             CreateDocument(new ArazzoStep { StepId = "step1" }, dependsOn: new HashSet<string> { "$sourceDescriptions.missing.externalWorkflow" }),
             "dependsOn value '$sourceDescriptions.missing.externalWorkflow' references unknown sourceDescription 'missing'"
+        ];
+        yield return
+        [
+            CreateDocument(new ArazzoStep { StepId = "step1" }, dependsOn: new HashSet<string> { "$sourceDescriptions.source1.externalWorkflow" }),
+            "dependsOn value '$sourceDescriptions.source1.externalWorkflow' references sourceDescription 'source1' whose type must be 'arazzo'"
         ];
         yield return
         [
