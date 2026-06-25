@@ -133,6 +133,24 @@ public class ArazzoParameterTests
         Assert.DoesNotContain(parsingContext.Diagnostic.Errors, error => error.Message.Contains("ArazzoParameter.Value is a REQUIRED field", StringComparison.Ordinal));
     }
 
+    [Fact]
+    public void Deserialize_WithDollarRef_ReturnsParameterObject()
+    {
+        var json = """
+        {
+            "$ref": "$components.parameters.shared",
+            "value": "25"
+        }
+        """;
+        var jsonNode = JsonNode.Parse(json)!;
+        var parsingContext = new ParsingContext(new());
+
+        var parameter = Assert.IsType<ArazzoParameter>(ArazzoV1Deserializer.LoadParameter(jsonNode, parsingContext));
+
+        Assert.Equal("25", parameter.Value?.GetValue<string>());
+        Assert.Null(parameter.Name);
+    }
+
     [Theory]
     [InlineData("$steps.getUser.outputs.userId")]
     [InlineData("$components.successActions.shared")]
